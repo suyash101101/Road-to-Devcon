@@ -3,738 +3,809 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Session 1 — Ethereum, Mempools & Why Privacy Matters | Road to Devcon</title>
-  <meta name="description" content="Road to Devcon @ NITK Surathkal — Session 1 interactive deck" />
+  <title>Session 1: Ethereum, Mempools and Why Privacy Matters | Road to Devcon</title>
+  <meta name="description" content="Road to Devcon at NITK Surathkal. Session 1 interactive deck for absolute beginners." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient" aria-hidden="true"></div>
-  <div class="grid-bg" aria-hidden="true"></div>
-
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-text">Road to Devcon · NITK Surathkal</span>
+      <span>Road to Devcon · NITK Surathkal</span>
     </div>
     <div class="session-tag">Session 1 / 3</div>
   </header>
 
-  <main id="deck" class="deck" tabindex="0" aria-live="polite">
+  <main id="deck" class="deck" tabindex="0">
 
-    <!-- ========== OPEN ========== -->
+    <!-- ========== 0 OPEN ========== -->
     <section class="slide active" data-section="open">
-      <div class="slide-inner hero-slide">
-        <div class="devcon-chip animate-in">
-          Path to <a href="https://devcon.org/en/" target="_blank" rel="noopener">Devcon 8 · Mumbai</a> · 3–6 Nov 2026
-        </div>
-        <p class="eyebrow animate-in delay-1">NITK Surathkal workshop series</p>
-        <h1 class="hero-brand animate-in delay-2">Road to Devcon</h1>
-        <p class="hero-theme animate-in delay-3">Make Private Apps using Ethereum</p>
-        <div class="hero-divider animate-in delay-4"></div>
-        <h2 class="hero-session animate-in delay-5">Session 1</h2>
-        <p class="hero-title animate-in delay-5">Ethereum, Mempools &amp; Why Privacy Matters</p>
-        <p class="hero-meta animate-in delay-6">90 min · ~100 students · Zero prior crypto assumed</p>
+      <div class="slide-inner">
+        <p class="eyebrow">Devcon 8 Mumbai · 3 to 6 Nov 2026</p>
+        <h1>Road to Devcon</h1>
+        <p class="lead">Make Private Apps using Ethereum</p>
+        <div class="divider"></div>
+        <p class="kicker">Session 1</p>
+        <h2 style="font-size:clamp(1.8rem,3.2vw,2.4rem);margin-bottom:0.5rem">Ethereum, Mempools and Why Privacy Matters</h2>
+        <p class="meta">90 minutes · ~100 people · We assume zero crypto knowledge</p>
       </div>
       <aside class="notes">
-        Welcome everyone. Point at Devcon 8 Mumbai — this workshop series is the campus ramp toward that. Theme: free, open, private, verifiable systems. Today is foundations + why privacy breaks on public chains. Session 2 is ZK. Session 3 ships private apps.
+        Welcome. This series points toward Devcon 8 in Mumbai. Theme is private apps on Ethereum. Today we build mental models from scratch. No jargon without a picture first.
       </aside>
     </section>
 
     <section class="slide" data-section="open">
       <div class="slide-inner">
-        <p class="eyebrow">Today's map</p>
-        <h2>Where we're going</h2>
-        <ol class="arc-list">
-          <li><span>01</span> Why Bitcoin existed</li>
-          <li><span>02</span> How ledgers get secured</li>
-          <li><span>03</span> Ethereum as a shared computer</li>
-          <li><span>04</span> Smart contracts (Solidity)</li>
-          <li><span>05</span> The mempool — the waiting room</li>
-          <li><span>06</span> MEV &amp; sandwich attacks</li>
-          <li><span>07</span> Why privacy is the whole point</li>
+        <p class="eyebrow">You already know more than you think</p>
+        <h2>We will reuse ideas from CS you already have</h2>
+        <div class="two">
+          <div class="box">
+            <h3>You know</h3>
+            <ul>
+              <li>Databases (Postgres, tables, rows)</li>
+              <li>HTTP request / response</li>
+              <li>Servers and clients</li>
+              <li>Classes, objects, functions</li>
+              <li>Signing into apps with passwords</li>
+            </ul>
+          </div>
+          <div class="box ok">
+            <h3>Today maps to</h3>
+            <ul>
+              <li>A shared public database</li>
+              <li>Signed messages broadcast to peers</li>
+              <li>Thousands of equal servers (nodes)</li>
+              <li>Smart contracts (programs on that DB)</li>
+              <li>Keys instead of usernames</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout">If something feels new, ask: "what is the Postgres / HTTP version of this?"</p>
+      </div>
+      <aside class="notes">
+        Ground them. Blockchain is not magic. It is a weird distributed database with strong rules.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="open">
+      <div class="slide-inner">
+        <p class="eyebrow">Today's path</p>
+        <h2>We go slow on purpose</h2>
+        <ol class="big-list">
+          <li><span class="n">01</span><span>What is a ledger, and why trust breaks</span></li>
+          <li><span class="n">02</span><span>How Bitcoin keeps a shared notebook</span></li>
+          <li><span class="n">03</span><span>Where Ethereum's "CPU" actually lives</span></li>
+          <li><span class="n">04</span><span>Smart contracts and Solidity, step by step</span></li>
+          <li><span class="n">05</span><span>The mempool (live simulator on this deck)</span></li>
+          <li><span class="n">06</span><span>MEV, sandwich attacks, then your labs</span></li>
         </ol>
       </div>
       <aside class="notes">
-        Don't lecture this list. Just show the arc so people know the punchline is coming. Tell them we'll open a live website later — mempool.space — and that will be the "aha" moment. Ask them to keep phones out only for MetaMask homework at the end.
+        Tell them: we will not jump to MEV until the waiting room makes sense. mempool.space is down, so we built a simulator into this deck.
       </aside>
     </section>
 
-    <!-- ========== 2008 ========== -->
-    <section class="slide" data-section="bitcoin">
+    <!-- ========== 1 LEDGERS ========== -->
+    <section class="slide" data-section="ledger">
       <div class="slide-inner">
-        <p class="eyebrow">Part 01 · Context</p>
-        <h2>2008</h2>
-        <p class="big-line">Banks were the trusted middlemen.<br />Then they broke.</p>
+        <p class="eyebrow">Chapter 1 · Why any of this exists</p>
+        <h2>What is a ledger?</h2>
+        <p class="lead">A ledger is a list of who owns what, and who paid whom.</p>
+        <p class="detail">Your bank account is a ledger. UPI balances are a ledger. Your college fee portal is a ledger. Someone has to store the rows and decide which writes are allowed.</p>
       </div>
       <aside class="notes">
-        Paint the scene quickly — housing crash, bailouts, "too big to fail." You don't need macroeconomics. One line: people realised the people keeping the ledger can lie, freeze accounts, or get bailed out while you eat the loss. That's the emotional setup for Satoshi.
+        Ask the room: who owns the SBI ledger? Who can freeze your account? Plant the trust question.
       </aside>
     </section>
 
-    <section class="slide" data-section="bitcoin">
+    <section class="slide" data-section="ledger">
       <div class="slide-inner">
-        <p class="eyebrow">The question</p>
-        <h2 class="question-line">What if the ledger<br />needed <em>no</em> trusted party?</h2>
-        <p class="sub">Satoshi's whitepaper was an engineering answer to a trust failure.</p>
-      </div>
-      <aside class="notes">
-        Say "Satoshi" once, don't mythologise. Land on the core idea: a ledger everyone can verify, no one can secretly edit. Analogise to a shared Google Sheet that nobody owns — except with maths instead of Google.
-      </aside>
-    </section>
-
-    <section class="slide" data-section="bitcoin">
-      <div class="slide-inner">
-        <p class="eyebrow">Core idea</p>
-        <div class="two-col">
-          <div class="compare bad">
-            <h3>Bank ledger</h3>
+        <p class="eyebrow">The normal setup</p>
+        <h2>One company keeps the book</h2>
+        <div class="two">
+          <div class="box bad">
+            <h3>Central ledger</h3>
             <ul>
-              <li>One owner</li>
-              <li>Private writes</li>
-              <li>You trust them</li>
+              <li>Bank / Paytm / college office owns the DB</li>
+              <li>You send them a request: "debit me, credit her"</li>
+              <li>They decide if it succeeds</li>
+              <li>You cannot verify their private database</li>
             </ul>
           </div>
-          <div class="compare good">
-            <h3>Bitcoin ledger</h3>
+          <div class="box">
+            <h3>What can go wrong?</h3>
             <ul>
-              <li>Many copies</li>
-              <li>Public writes</li>
-              <li>You verify yourself</li>
+              <li>They can freeze you</li>
+              <li>They can lie about balances</li>
+              <li>They can go bankrupt</li>
+              <li>Governments can force edits</li>
             </ul>
           </div>
         </div>
+        <p class="callout">This works most days. The question is: what happens when the trusted middleman fails?</p>
       </div>
       <aside class="notes">
-        This comparison shows up again with Postgres vs Ethereum. Plant the seed. Ask the room: "If everyone can see and copy the ledger, how do you stop someone from rewriting history?" That question opens PoW.
+        Keep it concrete. Not anti-bank ideology. Just engineering: single point of trust.
       </aside>
     </section>
 
-    <!-- ========== PoW ========== -->
-    <section class="slide" data-section="pow">
+    <section class="slide" data-section="ledger">
       <div class="slide-inner">
-        <p class="eyebrow">Part 02 · Security without a boss</p>
-        <h2>How do strangers agree<br />on the next page?</h2>
+        <p class="eyebrow">2008</p>
+        <h2>Trusted middlemen broke</h2>
+        <p class="lead">Banks held the ledgers. Risk exploded. Bailouts happened. Ordinary people ate the loss.</p>
+        <p class="detail">You do not need macroeconomics. One line is enough: the people keeping the books could fail, and the public had no independent copy to verify.</p>
+        <p class="callout">In 2008 someone asked: can we have a ledger that <em>nobody</em> owns, that anyone can check?</p>
       </div>
       <aside class="notes">
-        Don't say Proof of Work yet. Describe the problem first: thousands of computers, conflicting versions, who wins? Then introduce the race.
+        Short history beat. Then Satoshi as engineering response, not religion.
       </aside>
     </section>
 
-    <section class="slide" data-section="pow">
+    <section class="slide" data-section="ledger">
       <div class="slide-inner">
-        <p class="eyebrow">Diagram · Proof of Work</p>
-        <h2>Miners race. Winner appends the block.</h2>
-        <div class="diagram pow-diagram" role="img" aria-label="PoW race diagram">
-          <div class="pow-row">
-            <div class="node tx-pool">Waiting txs</div>
-            <div class="arrow">→</div>
-            <div class="miners">
-              <div class="miner pulse">Miner A</div>
-              <div class="miner pulse delay-a">Miner B</div>
-              <div class="miner pulse delay-b">Miner C</div>
+        <p class="eyebrow">The big idea</p>
+        <p class="q">What if thousands of strangers kept the <em>same</em> copy of the ledger, and maths stopped secret edits?</p>
+        <p class="sub">That is Bitcoin's bet. A public notebook. Everyone can read. Writing needs proof of work (we will show how).</p>
+      </div>
+      <aside class="notes">
+        Land the idea before any mining jargon. Shared notebook.
+      </aside>
+    </section>
+
+    <!-- ========== 2 BITCOIN MECHANICS ========== -->
+    <section class="slide" data-section="btc">
+      <div class="slide-inner">
+        <p class="eyebrow">Chapter 2 · How a shared notebook works</p>
+        <h2>Three pieces only</h2>
+        <ol class="steps">
+          <li><strong>Transaction:</strong> a signed message. "Alice sends 1 coin to Bob." Anyone can check the signature.</li>
+          <li><strong>Mempool (waiting room):</strong> signed messages sit here until they are written into a page. We will simulate this live later.</li>
+          <li><strong>Block:</strong> a page of the notebook. A batch of transactions that the network accepts as history.</li>
+        </ol>
+        <p class="callout">Chain of blocks = the full history. That is why people say "blockchain."</p>
+      </div>
+      <aside class="notes">
+        Introduce mempool softly as waiting room. Deep dive in chapter 5.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="btc">
+      <div class="slide-inner">
+        <p class="eyebrow">The hard problem</p>
+        <h2>Who gets to write the next page?</h2>
+        <p class="lead">If anyone can add a page, cheaters invent fake money. If one company adds pages, we are back to a bank.</p>
+        <p class="detail">Bitcoin's answer: make writing expensive. Computers race to solve a hard puzzle. Winner appends the next block. We call this <em>Proof of Work</em> (PoW).</p>
+      </div>
+      <aside class="notes">
+        Problem first, name second. Then go to interactive mining.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="btc">
+      <div class="slide-inner">
+        <p class="eyebrow">Interactive · mining a block</p>
+        <h2>Press Mine. Watch the race.</h2>
+        <div class="viz" id="mining-viz">
+          <div class="viz-title">Local demo (not real Bitcoin)</div>
+          <div class="viz-controls">
+            <button type="button" class="btn primary" id="mine-btn">Mine next block</button>
+            <button type="button" class="btn" id="mine-reset">Reset</button>
+          </div>
+          <div class="mine-row">
+            <div class="mine-box">
+              <h4>Waiting room</h4>
+              <div id="mine-pool"></div>
             </div>
-            <div class="arrow">→</div>
-            <div class="node block winner">New block</div>
+            <div class="arrow-lbl">→</div>
+            <div class="mine-box">
+              <h4>Miners racing</h4>
+              <div class="miner-list" id="miner-list"></div>
+            </div>
+            <div class="arrow-lbl">→</div>
+            <div class="mine-box">
+              <h4>Chain tip</h4>
+              <div id="mine-chain" class="mine-log">No blocks yet</div>
+            </div>
           </div>
-          <p class="diagram-caption">Competition replaces authority. Hardest to fake = most work done.</p>
+          <p class="mine-log" id="mine-status">Click Mine. One miner will win and clear the waiting room into a block.</p>
         </div>
       </div>
       <aside class="notes">
-        NOW name it: Proof of Work (PoW). One sentence: miners burn electricity solving a puzzle; first correct answer gets to write the next page and earn a reward. The chain is secure because rewriting history means redoing all that work.
+        Click a few times. Say: competition replaces a boss. Rewriting history means redoing all that work.
       </aside>
     </section>
 
-    <section class="slide" data-section="pow">
+    <section class="slide" data-section="btc">
       <div class="slide-inner">
-        <p class="eyebrow">First touch · waiting room</p>
-        <h2>Before a miner picks your tx…</h2>
-        <p class="big-line accent">it sits in a public waiting room.</p>
-        <p class="sub">We'll name this properly later. Just remember: nothing is private while it waits.</p>
+        <p class="eyebrow">What you should remember</p>
+        <h2>PoW in one breath</h2>
+        <ol class="steps">
+          <li>Transactions wait in a public room.</li>
+          <li>Miners compete to solve a puzzle.</li>
+          <li>Winner publishes a block. Others check it and copy it.</li>
+          <li>Honest majority + costly work ≈ hard to fake history.</li>
+        </ol>
+        <p class="callout">Later Ethereum switches from PoW to <em>Proof of Stake</em> (PoS): stake coins instead of burning electricity. Same idea of "who may propose the next page," different cost.</p>
       </div>
       <aside class="notes">
-        Don't say "mempool" yet if you can help it — or say it once softly. This is foreshadowing. Point at the diagram's "Waiting txs" box. Tell them we'll open a live website after Ethereum basics.
+        One sentence on PoS only. No debate.
       </aside>
     </section>
 
-    <!-- ========== PoS + Gas ========== -->
+    <!-- ========== 3 ETHEREUM / EVM ========== -->
     <section class="slide" data-section="eth">
       <div class="slide-inner">
-        <p class="eyebrow">Part 03 · Ethereum arrives</p>
-        <h2>Bitcoin = money ledger.<br />Ethereum = money + programs.</h2>
+        <p class="eyebrow">Chapter 3 · Ethereum</p>
+        <h2>Bitcoin moves coins. Ethereum also runs programs.</h2>
+        <p class="lead">Think: shared spreadsheet that can compute, not only store balances.</p>
+        <p class="detail">That is why people build apps (DEXs, NFTs, DAOs) on Ethereum. The logic lives next to the money, in the same public state.</p>
       </div>
       <aside class="notes">
-        Bridge fast. Bitcoin proved the ledger. Ethereum asked: what if the ledger could also run code? That's the jump from "send coins" to "deploy apps."
-      </aside>
-    </section>
-
-    <section class="slide" data-section="eth">
-      <div class="slide-inner">
-        <p class="eyebrow">PoW → PoS</p>
-        <h2>Ethereum switched how it picks the next block.</h2>
-        <div class="pill-row">
-          <div class="info-pill">
-            <strong>PoW</strong>
-            <span>race with energy</span>
-          </div>
-          <div class="info-pill accent-pill">
-            <strong>PoS</strong>
-            <span>stake ETH, get chosen</span>
-          </div>
-        </div>
-        <p class="sub">Why? Mostly energy + throughput. One sentence, not a debate. Same public ledger idea.</p>
-      </div>
-      <aside class="notes">
-        Name Proof of Stake (PoS). Don't get dragged into "which is better." For this audience: validators lock ETH as collateral; if they cheat, they lose it. Security via skin in the game instead of electricity bills.
+        Bridge clearly. Money ledger → programmable ledger.
       </aside>
     </section>
 
     <section class="slide" data-section="eth">
       <div class="slide-inner">
-        <p class="eyebrow">Paying for block space</p>
-        <h2>Gas = your bid for computation</h2>
-        <div class="diagram gas-diagram">
-          <div class="auction">
-            <div class="bid low">low fee → slow</div>
-            <div class="bid mid">mid fee → normal</div>
-            <div class="bid high">high fee → first</div>
+        <p class="eyebrow">The question everyone asks</p>
+        <p class="q">Where is this "CPU"? Where does the EVM stay?</p>
+        <p class="sub">Not in one Amazon region. Not in MetaMask. Not in "the cloud."</p>
+      </div>
+      <aside class="notes">
+        Pause. Let them guess. Then reveal: every full node.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="eth">
+      <div class="slide-inner">
+        <p class="eyebrow">Answer</p>
+        <h2>The EVM runs on <em>every</em> full node</h2>
+        <p class="detail">A node is a computer (laptop, server) running Ethereum software. Each full node stores the state and re-executes every transaction. The EVM is the rule engine inside that software. Same bytecode in → same new state out. If they disagree, they are not on the same chain.</p>
+        <div class="viz">
+          <div class="viz-title">Press Run tx. Every node updates the same way.</div>
+          <div class="viz-controls">
+            <button type="button" class="btn primary" id="node-run">Run transaction: count += 1</button>
+            <button type="button" class="btn" id="node-reset">Reset counts</button>
           </div>
-          <p class="diagram-caption">Same auction logic as "who gets into the next block." We'll see this live on the mempool screen.</p>
+          <div class="network" id="node-network"></div>
+          <p class="mine-log" id="node-log">Each card is one node. Each has a tiny EVM and a copy of state.</p>
         </div>
       </div>
       <aside class="notes">
-        Name gas. Analogy: Uber surge pricing for CPU on a shared computer. Every opcode costs gas; you set a max you're willing to pay. Higher tip = miners/validators prefer you. This connects directly to sandwich attacks later.
+        Emphasize: MetaMask talks to ONE node via RPC. That node is in the peer network. Consensus is "we all got the same answer."
       </aside>
     </section>
 
-    <!-- ========== HOOK (moved after context) ========== -->
-    <section class="slide hook-slide" data-section="hook">
+    <section class="slide" data-section="eth">
       <div class="slide-inner">
-        <p class="eyebrow danger-tag">Live · mempool.space</p>
-        <h2 class="hook-line">Every transaction you're about to see is a <em>public message</em> telling the whole world what someone is about to do.</h2>
-        <p class="sub">Open the tab. Don't explain yet. Let them watch.</p>
-        <a class="live-link" href="https://mempool.space" target="_blank" rel="noopener">mempool.space ↗</a>
-      </div>
-      <aside class="notes">
-        THIS is the hook — but now they have vocabulary. Switch to the projector on mempool.space. Stay silent for 10–15 seconds. Then: "You now know what a block is. That waterfall is the waiting room. We'll come back and dissect it after Solidity."
-      </aside>
-    </section>
-
-    <!-- ========== Ethereum + EVM ========== -->
-    <section class="slide" data-section="evm">
-      <div class="slide-inner">
-        <p class="eyebrow">Part 04 · Mental model</p>
-        <h2>Ethereum is a shared spreadsheet<br />that can <em>compute</em>.</h2>
-        <p class="sub">Thousands of independent nodes keep the same copy and re-run the same maths.</p>
-      </div>
-      <aside class="notes">
-        Steal the Week 4 vibe: shared state machine. Emphasise "compute" — not just balances. That's why apps live here.
-      </aside>
-    </section>
-
-    <section class="slide" data-section="evm">
-      <div class="slide-inner">
-        <p class="eyebrow">Analogy</p>
-        <div class="two-col">
-          <div class="compare bad">
-            <h3>Postgres</h3>
+        <p class="eyebrow">Postgres vs Ethereum</p>
+        <h2>Same "table," different ownership</h2>
+        <div class="two">
+          <div class="box bad">
+            <h3>Postgres at a company</h3>
             <ul>
               <li>One owner</li>
               <li>Private writes</li>
               <li>You trust the DBA</li>
+              <li>SQL runs on their server</li>
             </ul>
           </div>
-          <div class="compare good">
-            <h3>Ethereum</h3>
+          <div class="box ok">
+            <h3>Ethereum state</h3>
             <ul>
-              <li>Many owners</li>
-              <li>Public writes</li>
-              <li>Everyone re-executes</li>
+              <li>Many independent owners (nodes)</li>
+              <li>Public writes (after consensus)</li>
+              <li>You verify by re-running</li>
+              <li>EVM runs on every full node</li>
             </ul>
           </div>
         </div>
       </div>
       <aside class="notes">
-        CS students get this instantly. "INSERT is a transaction. SELECT is free-ish. Everyone sees your INSERT in the pending queue." Perfect bridge to EOAs next.
+        CS students click hard on this. INSERT costs gas. SELECT via eth_call is usually free.
       </aside>
     </section>
 
-    <section class="slide" data-section="evm">
+    <section class="slide" data-section="eth">
       <div class="slide-inner">
-        <p class="eyebrow">Accounts</p>
-        <h2>You don't "log in."<br />You hold keys.</h2>
-        <div class="pill-row">
-          <div class="info-pill">
-            <strong>EOA</strong>
-            <span>account controlled by a private key</span>
+        <p class="eyebrow">Accounts without usernames</p>
+        <h2>You hold keys. You do not "log in."</h2>
+        <div class="key-flow">
+          <div class="box">
+            <strong>Private key</strong>
+            <p>Secret random number. Proves you authorize a tx. Never share. Never screenshot.</p>
           </div>
-          <div class="info-pill">
-            <strong>Wallet</strong>
-            <span>app that manages those keys (MetaMask)</span>
+          <div class="box">
+            <strong>Address (EOA)</strong>
+            <p>Public ID derived from the key. Like an account number. Safe to share.</p>
           </div>
-          <div class="info-pill">
-            <strong>Transaction</strong>
-            <span>a signed message: "do this, I authorize it"</span>
+          <div class="box">
+            <strong>Wallet app</strong>
+            <p>MetaMask etc. Stores keys and helps you sign. The wallet is not the bank. It is a key manager.</p>
+          </div>
+        </div>
+        <p class="callout"><em>EOA</em> = Externally Owned Account. A human-controlled account (key), not a contract.</p>
+      </div>
+      <aside class="notes">
+        Show MetaMask address if set up. Never show seed phrase.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="eth">
+      <div class="slide-inner">
+        <p class="eyebrow">A transaction is just a signed message</p>
+        <h2>From intent to network</h2>
+        <ol class="steps">
+          <li>You choose an action (send ETH, call a contract).</li>
+          <li>Wallet builds a transaction object (to, value, data, gas fields).</li>
+          <li>Your private key signs it. Signature proves it was you.</li>
+          <li>Wallet sends it to a node over RPC (HTTPS to Alchemy/Infura/your node).</li>
+          <li>That node gossips it to peers. It enters the waiting room.</li>
+        </ol>
+      </div>
+      <aside class="notes">
+        Tie to Week 4 RPC idea without naming too much. Browser cannot speak P2P directly.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="eth">
+      <div class="slide-inner">
+        <p class="eyebrow">Interactive · code to bytecode</p>
+        <h2>What actually gets deployed?</h2>
+        <p class="detail">You write Solidity (human readable). The compiler produces <em>bytecode</em> (what the EVM executes) and an <em>ABI</em> (JSON menu so wallets know how to call functions).</p>
+        <div class="viz">
+          <div class="viz-controls">
+            <button type="button" class="btn primary" id="pipe-next">Step pipeline →</button>
+            <button type="button" class="btn" id="pipe-reset">Reset</button>
+          </div>
+          <div class="pipe" id="code-pipe">
+            <div class="pipe-step" data-i="0"><strong>1. Solidity</strong><span>contract Counter { ... }</span></div>
+            <div class="pipe-step" data-i="1"><strong>2. solc compile</strong><span>Compiler checks types, emits artifacts</span></div>
+            <div class="pipe-step" data-i="2"><strong>3. Bytecode</strong><span>Hex ops the EVM understands</span></div>
+            <div class="pipe-step" data-i="3"><strong>4. Every node</strong><span>Stores code at an address, re-runs calls</span></div>
+          </div>
+          <div class="hex-preview" id="hex-preview">Click Step to walk the pipeline.</div>
+        </div>
+      </div>
+      <aside class="notes">
+        No opcodes. Hex is the "body." ABI is the menu. Deploy = upload bytecode in a tx.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="eth">
+      <div class="slide-inner">
+        <p class="eyebrow">Paying for the shared CPU</p>
+        <h2>Gas = bid for computation and block space</h2>
+        <p class="detail">Every EVM operation costs gas. You set how much you are willing to pay. Higher tip usually means faster inclusion. Same auction idea as "who gets into the next block first."</p>
+        <div class="two">
+          <div class="box">
+            <h3>Why gas exists</h3>
+            <ul>
+              <li>Stops infinite loops from freezing the network</li>
+              <li>Pays validators / prioritizes scarce block space</li>
+              <li>Makes spam expensive</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Mental model</h3>
+            <ul>
+              <li>Uber surge pricing for CPU</li>
+              <li>Complex contract = more gas</li>
+              <li>Failed tx can still cost gas</li>
+            </ul>
           </div>
         </div>
       </div>
       <aside class="notes">
-        Name EOA. Demo MetaMask for 30 seconds if set up — show address, no seed phrase on screen. Signed message analogy: like signing a cheque, but the cheque is broadcast to everyone.
+        Connect to mempool fee race coming up.
       </aside>
     </section>
 
-    <section class="slide" data-section="evm">
+    <!-- ========== 4 SOLIDITY ========== -->
+    <section class="slide" data-section="sol">
       <div class="slide-inner">
-        <p class="eyebrow">Under the hood · EVM</p>
-        <h2>The EVM is the shared CPU.</h2>
-        <div class="diagram evm-flow">
-          <div class="flow-step">Solidity</div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-step">Bytecode</div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-step highlight">Every node runs it</div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-step">Same new state</div>
-        </div>
-        <p class="diagram-caption">No opcodes today. Mental model: deploy code once → the world re-executes it forever.</p>
+        <p class="eyebrow">Chapter 4 · Smart contracts</p>
+        <h2>A smart contract is a public program with public memory</h2>
+        <p class="detail">Once deployed, the code sits at an address on the chain. Anyone can read the code and the storage (usually). Anyone who pays gas can call the functions (unless you restrict them).</p>
+        <p class="callout">It is not a legal contract. It is a program the network is forced to run the same way everywhere.</p>
       </div>
       <aside class="notes">
-        Name EVM. Pull from Week 4 lightly: compilation produces bytecode + ABI. ABI is the "menu" wallets use; bytecode is what nodes run. Keep conceptual — "public program with public memory" is the line they should leave with.
+        Repeat the public program / public memory line twice.
       </aside>
     </section>
 
-    <!-- ========== Solidity ========== -->
-    <section class="slide" data-section="solidity">
+    <section class="slide" data-section="sol">
       <div class="slide-inner">
-        <p class="eyebrow">Part 05 · Smart contracts</p>
-        <h2>A smart contract is a<br /><em>public program</em> with <em>public memory</em>.</h2>
-      </div>
-      <aside class="notes">
-        Repeat that line twice. Language is secondary. State = memory everyone can read. Functions = the API. msg.sender = who signed the call.
-      </aside>
-    </section>
-
-    <section class="slide" data-section="solidity">
-      <div class="slide-inner">
-        <p class="eyebrow">Concepts before code</p>
-        <div class="concept-grid">
-          <div class="concept"><strong>state variables</strong><span>permanent storage on-chain</span></div>
-          <div class="concept"><strong>functions</strong><span>ways to read / change state</span></div>
-          <div class="concept"><strong>msg.sender</strong><span>the address that signed this call</span></div>
-          <div class="concept"><strong>visibility</strong><span>who can call what (public / private…)</span></div>
+        <p class="eyebrow">Building blocks</p>
+        <h2>Four ideas before code</h2>
+        <div class="two">
+          <div class="box">
+            <h3>State variables</h3>
+            <p>Stored forever on-chain (until changed). Like columns in a DB row owned by the contract.</p>
+          </div>
+          <div class="box">
+            <h3>Functions</h3>
+            <p>The API. Some only read (view). Some change state and need a transaction + gas.</p>
+          </div>
+          <div class="box">
+            <h3>msg.sender</h3>
+            <p>The address that signed this call. Your identity for this request. No password.</p>
+          </div>
+          <div class="box">
+            <h3>Visibility</h3>
+            <p>public / private / internal / external. Who is allowed to call this function.</p>
+          </div>
         </div>
       </div>
       <aside class="notes">
-        Tie visibility to Week 3 quickly if anyone from WEC is here — otherwise skip. Focus on msg.sender: it's how "identity" works without usernames.
+        Tie msg.sender to "who clicked." Visibility can be light.
       </aside>
     </section>
 
-    <section class="slide code-slide" data-section="solidity">
+    <section class="slide" data-section="sol">
       <div class="slide-inner">
-        <p class="eyebrow">Full example · Counter</p>
-        <pre class="code-block"><code><span class="kw">contract</span> Counter {
-    <span class="kw">uint256</span> <span class="field">public</span> count;
+        <p class="eyebrow">Example 1 · Counter</p>
+        <h2>Line by line</h2>
+        <pre class="code"><code><span class="cmt">// SPDX-License-Identifier: MIT</span>
+<span class="kw">pragma solidity</span> ^0.8.24;
+
+<span class="kw">contract</span> Counter {
+    <span class="kw">uint256</span> <span class="field">public</span> count;   <span class="cmt">// public memory on-chain</span>
 
     <span class="kw">function</span> <span class="fn">inc</span>() <span class="field">public</span> {
-        count += <span class="num">1</span>;
+        count += <span class="num">1</span>;            <span class="cmt">// anyone can bump, if they pay gas</span>
     }
 
     <span class="kw">function</span> <span class="fn">incBy</span>(<span class="kw">uint256</span> n) <span class="field">public</span> {
         count += n;
     }
 }</code></pre>
-        <p class="sub">Walk line by line. Each line maps to Part 04.</p>
+        <p class="detail"><span class="inline-code">public count</span> auto-creates a free getter. <span class="inline-code">inc</span> changes state, so it needs a real transaction.</p>
       </div>
       <aside class="notes">
-        Line-by-line: contract = deployed program. count = public memory. inc = anyone can bump it. Ask: "Who paid gas? Whose msg.sender?" Optional: show Remix deploy on Sepolia if time.
+        Walk each line. Ask who is msg.sender when you call inc.
       </aside>
     </section>
 
-    <section class="slide code-slide" data-section="solidity">
+    <section class="slide" data-section="sol">
       <div class="slide-inner">
-        <p class="eyebrow">Tiny transfer sketch</p>
-        <pre class="code-block compact"><code><span class="kw">mapping</span>(<span class="kw">address</span> => <span class="kw">uint256</span>) <span class="field">public</span> balances;
+        <p class="eyebrow">What happens when you call inc()</p>
+        <ol class="steps">
+          <li>Wallet builds a tx targeting the contract address, data = function selector for inc().</li>
+          <li>You sign and broadcast. Tx enters the mempool.</li>
+          <li>A block includes it. Every node runs the EVM: load code, execute inc, write new count.</li>
+          <li>Explorers show the new state. Your wallet balance paid gas.</li>
+        </ol>
+        <p class="callout">Reading <span class="inline-code">count</span> usually does not need a transaction. Changing it does.</p>
+      </div>
+      <aside class="notes">
+        Close the loop with chapters 3 and 5.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="sol">
+      <div class="slide-inner">
+        <p class="eyebrow">Example 2 · balances</p>
+        <h2>A token is mostly a mapping</h2>
+        <pre class="code"><code><span class="kw">mapping</span>(<span class="kw">address</span> => <span class="kw">uint256</span>) <span class="field">public</span> balances;
 
 <span class="kw">function</span> <span class="fn">transfer</span>(<span class="kw">address</span> to, <span class="kw">uint256</span> amt) <span class="field">public</span> {
-    <span class="kw">require</span>(balances[msg.sender] >= amt);
+    <span class="kw">require</span>(balances[msg.sender] >= amt, <span class="fn">"not enough"</span>);
     balances[msg.sender] -= amt;
     balances[to] += amt;
 }</code></pre>
-        <p class="sub">A token is mostly a mapping. "Send" = subtract + add. (ERC-20 is this idea, standardised.)</p>
+        <p class="detail">"Sending tokens" is not FedEx. It is subtract from one key in a hash map, add to another. DEXs swap these mappings. That is what sandwich attacks target.</p>
       </div>
       <aside class="notes">
-        Week 3 gold: token = mapping. Don't teach full ERC-20. Just plant: DEXs swap these mappings. That's what sandwich attacks prey on.
+        Plant DEX idea for MEV. Do not teach full ERC-20.
       </aside>
     </section>
 
-    <!-- ========== Mempool deep ========== -->
-    <section class="slide hook-slide" data-section="mempool">
+    <section class="slide" data-section="sol">
       <div class="slide-inner">
-        <p class="eyebrow danger-tag">Part 06 · The waiting room</p>
-        <h2>Back to the live screen.</h2>
-        <p class="big-line">Name it: <em>mempool</em></p>
-        <p class="sub">Memory pool — pending transactions, not yet in a block.</p>
+        <p class="eyebrow">Solidity gotchas for beginners</p>
+        <h2>Things that surprise CS students</h2>
+        <ol class="steps">
+          <li>No floats. Money uses big integers (often 18 decimals). 1 ETH = 10^18 wei.</li>
+          <li>Bugs are forever (mostly). Deployed code is hard to patch. Test like crazy.</li>
+          <li>Everything public by default culture. Treat storage as readable.</li>
+          <li><span class="inline-code">require</span> reverts the call if false. Good for checks.</li>
+          <li>Gas matters. Loops over huge arrays can brick users.</li>
+        </ol>
       </div>
       <aside class="notes">
-        Return to mempool.space. Now explain. Point at pending txs, fees, confirmation. This is a crux section — slow down.
+        Light security mindset without Week 3 reentrancy deep dive.
       </aside>
     </section>
 
-    <section class="slide" data-section="mempool">
+    <!-- ========== 5 MEMPOOL ========== -->
+    <section class="slide" data-section="mem">
+      <div class="slide-inner">
+        <p class="eyebrow">Chapter 5 · The waiting room</p>
+        <h2>Name it: mempool</h2>
+        <p class="lead">Memory pool. Pending transactions that are not in a block yet.</p>
+        <p class="detail">Anyone running a node (or using a public RPC / explorer) can often see these pending messages: where value is going, which contract you call, how much gas you bid.</p>
+        <p class="callout">If it is pending, treat it as already public.</p>
+      </div>
+      <aside class="notes">
+        mempool.space is down. Our simulator is the live demo.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="mem">
       <div class="slide-inner">
         <p class="eyebrow">How it spreads</p>
-        <h2>Gossip, not upload-to-server.</h2>
-        <div class="diagram gossip">
-          <div class="g-node you">You</div>
-          <div class="g-links">
-            <span></span><span></span><span></span>
+        <h2>Gossip, not upload-to-one-server</h2>
+        <ol class="steps">
+          <li>Your wallet sends the signed tx to one node (RPC).</li>
+          <li>That node tells its peers. They tell their peers.</li>
+          <li>Seconds later, many nodes hold a copy in their mempool.</li>
+          <li>Searchers watch this feed for profitable opportunities.</li>
+        </ol>
+      </div>
+      <aside class="notes">
+        One liner gossip. Bridge to MEV.
+      </aside>
+    </section>
+
+    <section class="slide" data-section="mem">
+      <div class="slide-inner">
+        <p class="eyebrow">Interactive · mempool simulator</p>
+        <h2>Watch fees fight for the next block</h2>
+        <div class="viz" id="mempool-viz">
+          <div class="viz-title">Built-in stand-in for mempool explorers</div>
+          <div class="viz-controls">
+            <button type="button" class="btn primary" id="mp-spawn">Spawn random pending txs</button>
+            <button type="button" class="btn" id="mp-mine">Build next block (highest fees first)</button>
+            <button type="button" class="btn" id="mp-clear">Clear</button>
           </div>
-          <div class="g-peers">
-            <div class="g-node">Node</div>
-            <div class="g-node">Node</div>
-            <div class="g-node">Node</div>
+          <div class="mempool">
+            <div>
+              <div class="viz-title">Pending (mempool)</div>
+              <div class="pool-list" id="mp-list"></div>
+            </div>
+            <div class="block-side">
+              <h4>Last block</h4>
+              <div class="built" id="mp-block">No block yet. Spawn txs, then build.</div>
+              <div class="stat-row">
+                <span>Pending: <strong id="mp-pending">0</strong></span>
+                <span>Blocks: <strong id="mp-blocks">0</strong></span>
+              </div>
+            </div>
           </div>
-          <p class="diagram-caption">Your wallet sends the signed tx to a few peers. They tell their peers. Seconds later, the world can see it.</p>
+          <p class="mine-log" id="mp-log">Higher fee usually wins inclusion. That auction is the root of many MEV games.</p>
         </div>
       </div>
       <aside class="notes">
-        One-liner on gossip protocol. Week 4 RPC point: your MetaMask talks to one node (Alchemy etc.); that node gossips. Anyone running a node — or using a public explorer — can watch pending txs.
+        Spawn a few times. Mine. Point at ordering. This replaces mempool.space.
       </aside>
     </section>
 
-    <section class="slide" data-section="mempool">
+    <section class="slide" data-section="mem">
       <div class="slide-inner">
-        <p class="eyebrow">Ordering</p>
-        <h2>Fee decides who goes first.</h2>
-        <div class="mempool-viz" aria-hidden="true">
-          <div class="m-tx" style="--f:1">0.5 gwei</div>
-          <div class="m-tx" style="--f:2">2 gwei</div>
-          <div class="m-tx hot" style="--f:3">40 gwei ★</div>
-          <div class="m-tx" style="--f:1.5">1 gwei</div>
-          <div class="m-tx hot" style="--f:2.5">25 gwei ★</div>
+        <p class="eyebrow">Why this freaks people out</p>
+        <h2>Your intent leaks before confirmation</h2>
+        <div class="two">
+          <div class="box bad">
+            <h3>What observers see</h3>
+            <ul>
+              <li>Swap size and direction</li>
+              <li>Destination addresses</li>
+              <li>Contract calls and arguments</li>
+              <li>How urgently you bid (gas)</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>What they can do</h3>
+            <ul>
+              <li>Copy your trade</li>
+              <li>Front-run / sandwich you</li>
+              <li>Profile wallet habits over time</li>
+              <li>Censor or delay (in extreme cases)</li>
+            </ul>
+          </div>
         </div>
-        <p class="sub">Validators prefer higher tips. Searchers know this. That's the attack surface.</p>
       </div>
       <aside class="notes">
-        Connect gas auction → mempool ordering. Anyone can read pending swaps and insert their own txs around yours by paying more. Set up MEV.
+        Emotional beat before MEV definition.
       </aside>
     </section>
 
-    <section class="slide" data-section="mempool">
-      <div class="slide-inner">
-        <p class="eyebrow">The uncomfortable fact</p>
-        <h2 class="question-line">If it's pending,<br />it's already public.</h2>
-        <p class="sub">Balances, amounts, destinations, contract calls — readable before confirmation.</p>
-      </div>
-      <aside class="notes">
-        Let it land. This is why "transparent blockchain" is a feature for verification and a bug for privacy. Transition: people make money from reading this feed. That's MEV.
-      </aside>
-    </section>
-
-    <!-- ========== MEV ========== -->
+    <!-- ========== 6 MEV ========== -->
     <section class="slide" data-section="mev">
       <div class="slide-inner">
-        <p class="eyebrow">Part 07 · Extraction</p>
+        <p class="eyebrow">Chapter 6 · Extraction</p>
         <h2>MEV</h2>
-        <p class="big-line">Maximal Extractable Value —<br />profit from choosing <em>what</em> goes in a block and <em>in what order</em>.</p>
+        <p class="lead">Maximal Extractable Value: profit from choosing which transactions go into a block and in what order.</p>
+        <p class="detail">Formerly called Miner Extractable Value. Same idea with validators and block builders. Searchers scan the mempool for profitable reorderings.</p>
       </div>
       <aside class="notes">
-        One-line definition. Formerly "miner" extractable; same idea with validators/builders. Searchers scan mempool for profitable reordering.
+        One clean definition. Then sandwich.
       </aside>
     </section>
 
     <section class="slide" data-section="mev">
       <div class="slide-inner">
-        <p class="eyebrow">Sandwich attack · the mechanic</p>
+        <p class="eyebrow">Sandwich attack</p>
         <h2>Victim wants to swap. Searcher eats both sides.</h2>
-        <div class="sandwich-diagram">
-          <div class="s-step searcher">1. Front-run<br /><small>buy first → price up</small></div>
-          <div class="s-step victim">2. Victim swap<br /><small>worse price</small></div>
-          <div class="s-step searcher">3. Back-run<br /><small>sell → pocket spread</small></div>
+        <div class="tl-btns" id="sandwich-timeline">
+          <button type="button" class="btn active" data-step="0">0 Intent</button>
+          <button type="button" class="btn" data-step="1">1 Front-run</button>
+          <button type="button" class="btn" data-step="2">2 Victim</button>
+          <button type="button" class="btn" data-step="3">3 Back-run</button>
         </div>
-        <p class="diagram-caption">Draw this on a whiteboard too. Arrows: searcher tx → victim tx → searcher tx in the same block.</p>
+        <div class="sand-grid">
+          <div class="sand-step searcher" data-panel="1">
+            <strong>Front-run</strong>
+            <p>Searcher buys first with higher fee. Price moves up.</p>
+          </div>
+          <div class="sand-step victim" data-panel="0">
+            <strong>Victim swap</strong>
+            <p>Large buy sits in mempool. Slippage tolerance is the attack budget.</p>
+          </div>
+          <div class="sand-step searcher" data-panel="3">
+            <strong>Back-run</strong>
+            <p>Searcher sells into the victim. Pocket the spread.</p>
+          </div>
+        </div>
+        <p class="callout" id="sand-caption">Step 0: Victim tx is public intent. Click through 1 → 2 → 3.</p>
       </div>
       <aside class="notes">
-        Walk slowly. Victim submits large Uniswap buy. Searcher sees it in mempool, buys first (price rises), victim buys high, searcher sells into that. Victim's slippage is searcher's profit.
+        Click slowly. Then Foundry demo.
       </aside>
     </section>
 
     <section class="slide" data-section="mev">
-      <div class="slide-inner wide">
-        <p class="eyebrow">Interactive · sandwich timeline</p>
-        <div class="timeline" id="sandwich-timeline">
-          <button type="button" class="tl-step active" data-step="0">Pending</button>
-          <button type="button" class="tl-step" data-step="1">Front-run</button>
-          <button type="button" class="tl-step" data-step="2">Victim</button>
-          <button type="button" class="tl-step" data-step="3">Back-run</button>
-        </div>
-        <div class="timeline-panels">
-          <div class="tl-panel active" data-panel="0">
-            <h3>Victim tx appears in mempool</h3>
-            <p>Swap 10 ETH → TOKEN. Slippage 1%. Public. Searcher bots are watching.</p>
-          </div>
-          <div class="tl-panel" data-panel="1">
-            <h3>Searcher front-runs</h3>
-            <p>Higher gas. Buys TOKEN first. Pool price moves up before victim lands.</p>
-          </div>
-          <div class="tl-panel" data-panel="2">
-            <h3>Victim executes</h3>
-            <p>Same swap, worse rate. Still "succeeds" within slippage — silently taxed.</p>
-          </div>
-          <div class="tl-panel" data-panel="3">
-            <h3>Searcher back-runs</h3>
-            <p>Sells TOKEN into the victim's buy. Spread = MEV profit. Block sealed.</p>
-          </div>
-        </div>
-      </div>
-      <aside class="notes">
-        Click through live. Students love this. Then jump to the Foundry repo demo.
-      </aside>
-    </section>
-
-    <section class="slide code-slide" data-section="mev">
       <div class="slide-inner">
-        <p class="eyebrow">Live demo · presenter runs this</p>
-        <h2>Sandwich on Anvil (watch the profit)</h2>
-        <pre class="code-block compact"><code><span class="cmt"># Terminal A</span>
+        <p class="eyebrow">Presenter live demo</p>
+        <h2>Sandwich on Anvil</h2>
+        <pre class="code"><code><span class="cmt"># Terminal A</span>
 anvil
 
 <span class="cmt"># Terminal B</span>
 cd sandwich-attack
 forge script script/Sandwich.s.sol:SandwichScript \
   --broadcast --rpc-url http://127.0.0.1:8545</code></pre>
-        <p class="sub">Full student clone steps are at the end of this deck — leave them on screen.</p>
+        <p class="detail">Watch logs for victim loss and searcher profit. Full student clone steps are at the end.</p>
       </div>
       <aside class="notes">
-        Run live now. Show searcher profit in the logs. Tell students: "Don't clone yet — final slides have the full e2e checklist." If wifi dies, play the recording.
+        Run live. Backup recording ready.
       </aside>
     </section>
 
-    <!-- ========== Beyond DeFi ========== -->
-    <section class="slide" data-section="privacy">
+    <section class="slide" data-section="mev">
       <div class="slide-inner">
-        <p class="eyebrow">Part 08 · Bigger than DeFi</p>
-        <h2>Any mempool observer can profile a wallet.</h2>
-        <ul class="plain-list">
-          <li>Balances over time</li>
-          <li>Counterparties</li>
-          <li>Timing patterns (salary? treasury?)</li>
-        </ul>
+        <p class="eyebrow">Bigger than DeFi</p>
+        <h2>Public chain = group chat for money</h2>
+        <p class="detail">Observers can profile wallets: balances, counterparties, timing. Treasuries, payroll patterns, personal spending. Verification loves transparency. Humans need privacy. That tension is the whole event theme.</p>
+        <p class="callout">Same pattern in AI: every ChatGPT prompt is a message of intent to one company. Leaky mempool, leaky LLM. Session 2 starts fixing this with ZK.</p>
       </div>
       <aside class="notes">
-        Example: journalists or competitors watching a DAO treasury wallet. Or employers correlating payday. Finance as a public group chat.
+        Short AI bridge. Do not overclaim.
       </aside>
     </section>
 
-    <section class="slide" data-section="privacy">
-      <div class="slide-inner">
-        <p class="eyebrow">The metaphor</p>
-        <h2 class="question-line">Public blockchains are a<br /><em>group chat for money</em>.</h2>
-        <p class="sub">Verification needs transparency. Humans need privacy. That tension is the course.</p>
-      </div>
-      <aside class="notes">
-        This sets up the whole "Make Private Apps" theme. Don't sell a product — sell the problem.
-      </aside>
-    </section>
-
-    <!-- ========== AI bridge ========== -->
-    <section class="slide" data-section="ai">
-      <div class="slide-inner">
-        <p class="eyebrow">Part 09 · The AI bridge</p>
-        <h2>Same pattern. New surface.</h2>
-        <div class="two-col">
-          <div class="compare bad">
-            <h3>Leaky mempool</h3>
-            <p>Signed tx → whole network reads your intent</p>
-          </div>
-          <div class="compare bad">
-            <h3>Leaky LLM</h3>
-            <p>Prompt → one company reads your intent</p>
-          </div>
-        </div>
-        <p class="sub accent-text">Ethereum's answer to leaky mempools is the same family of ideas we'll use for leaky AI. We build both in this event.</p>
-      </div>
-      <aside class="notes">
-        Keep it tight — 4 minutes. Don't overclaim. Just: intent leakage is the shared problem. ZK / private compute is the bridge to Session 2.
-      </aside>
-    </section>
-
-    <!-- ========== HANDS-ON E2E (leave on screen) ========== -->
+    <!-- ========== LABS ========== -->
     <section class="slide" data-section="labs">
       <div class="slide-inner">
-        <p class="eyebrow">Hands-on · two repos</p>
-        <h2>Tonight you will run both labs</h2>
+        <p class="eyebrow">Hands-on</p>
+        <h2>Two repos. Leave this up.</h2>
         <div class="repo-grid">
           <div class="repo-card">
             <div class="tag">Lab A · concepts</div>
             <h3>mempool-mev</h3>
-            <p>See fee wars in the txpool. Competing txs, who lands first, why pending = public.</p>
+            <p>Fee race in the txpool. See pending txs and who wins inclusion.</p>
             <code>github.com/suyash101101/mempool-mev</code>
           </div>
           <div class="repo-card">
             <div class="tag">Lab B · attack</div>
             <h3>sandwich-attack</h3>
-            <p>Deploy a tiny AMM, sandwich a victim swap, read the profit in your terminal.</p>
+            <p>Tiny AMM. Front-run, victim, back-run. Read profit in the terminal.</p>
             <code>github.com/suyash101101/sandwich-attack</code>
           </div>
         </div>
       </div>
       <aside class="notes">
-        Leave this up while students open GitHub on phones/laptops. QR or Discord links help. Lab A first (lighter), then Lab B.
+        Lab A then Lab B. Discord links.
       </aside>
     </section>
 
     <section class="slide" data-section="labs">
       <div class="slide-inner">
-        <p class="eyebrow">Prerequisites · install once</p>
-        <h2>Before you clone anything</h2>
-        <div class="prereq-grid">
-          <div class="prereq-item">
-            <span class="num">01</span>
-            <div><strong>Git</strong><span>Already on most Macs. Windows: git-scm.com</span></div>
-          </div>
-          <div class="prereq-item">
-            <span class="num">02</span>
-            <div><strong>Foundry</strong><span><code>curl -L https://foundry.paradigm.xyz | bash</code> then <code>foundryup</code></span></div>
-          </div>
-          <div class="prereq-item">
-            <span class="num">03</span>
-            <div><strong>Check</strong><span><code>forge --version</code> · <code>anvil --version</code> should print</span></div>
-          </div>
-          <div class="prereq-item">
-            <span class="num">04</span>
-            <div><strong>Two terminals</strong><span>One for Anvil (local chain), one for forge scripts</span></div>
-          </div>
-        </div>
+        <p class="eyebrow">Prerequisites</p>
+        <h2>Install once before cloning</h2>
+        <div class="prereq-item"><span class="num">01</span><div><strong>Git</strong><span>git-scm.com on Windows if needed</span></div></div>
+        <div class="prereq-item"><span class="num">02</span><div><strong>Foundry</strong><span>curl -L https://foundry.paradigm.xyz | bash then foundryup</span></div></div>
+        <div class="prereq-item"><span class="num">03</span><div><strong>Check</strong><span>forge --version and anvil --version</span></div></div>
+        <div class="prereq-item"><span class="num">04</span><div><strong>Two terminals</strong><span>One Anvil, one forge script</span></div></div>
       </div>
       <aside class="notes">
-        Walk the room. TAs help with Foundry install — it's the #1 blocker. Linux/Mac preferred; WSL for Windows.
+        TAs help with PATH issues.
       </aside>
     </section>
 
-    <section class="slide code-slide" data-section="labs">
+    <section class="slide" data-section="labs">
       <div class="slide-inner">
-        <p class="eyebrow">Lab A · mempool-mev · e2e</p>
-        <h2>Clone → race fees → inspect pool</h2>
-        <pre class="code-block compact"><code>git clone https://github.com/suyash101101/mempool-mev.git
+        <p class="eyebrow">Lab A e2e</p>
+        <h2>mempool-mev</h2>
+        <pre class="code"><code>git clone https://github.com/suyash101101/mempool-mev.git
 cd mempool-mev
 forge install foundry-rs/forge-std --no-commit
-forge build
 
-<span class="cmt"># Terminal A — local chain with slow mining so pool fills</span>
 anvil --block-time 8
 
-<span class="cmt"># Terminal B — submit competing txs (different tips)</span>
 forge script script/FeeRace.s.sol:FeeRaceScript \
   --broadcast --rpc-url http://127.0.0.1:8545 -vv
 
-<span class="cmt"># Optional: peek at the pool while Anvil is slow</span>
-cast rpc txpool_content --rpc-url http://127.0.0.1:8545 | head</code></pre>
+cast rpc txpool_content --rpc-url http://127.0.0.1:8545</code></pre>
       </div>
       <aside class="notes">
-        Explain: higher tip should land first once the block mines. txpool_content is the "mempool view" on Anvil.
+        Slow block time so they can peek the pool.
       </aside>
     </section>
 
-    <section class="slide code-slide" data-section="labs">
+    <section class="slide" data-section="labs">
       <div class="slide-inner">
-        <p class="eyebrow">Lab B · sandwich-attack · e2e</p>
-        <h2>Clone → sandwich → read profit</h2>
-        <pre class="code-block compact"><code>git clone https://github.com/suyash101101/sandwich-attack.git
+        <p class="eyebrow">Lab B e2e</p>
+        <h2>sandwich-attack</h2>
+        <pre class="code"><code>git clone https://github.com/suyash101101/sandwich-attack.git
 cd sandwich-attack
 forge install foundry-rs/forge-std --no-commit
 forge test -vv
 
-<span class="cmt"># Terminal A</span>
 anvil
 
-<span class="cmt"># Terminal B</span>
 forge script script/Sandwich.s.sol:SandwichScript \
-  --broadcast --rpc-url http://127.0.0.1:8545
-
-<span class="cmt"># Look for: Searcher profit WETH …</span></code></pre>
-        <p class="sub">Success = victim got fewer tokens than "fair", searcher ended richer.</p>
+  --broadcast --rpc-url http://127.0.0.1:8545</code></pre>
+        <p class="detail">Success: victim got less than fair, searcher ended richer.</p>
       </div>
       <aside class="notes">
-        Same Anvil as Lab A is fine if you restart. Celebrate when someone shouts the profit number.
+        Celebrate profit numbers.
       </aside>
     </section>
 
-    <section class="slide" data-section="labs">
-      <div class="slide-inner">
-        <p class="eyebrow">Stuck? · quick fixes</p>
-        <h2>Common errors</h2>
-        <ul class="plain-list compact">
-          <li><code>forge: command not found</code> → re-open terminal after <code>foundryup</code>, check <code>$PATH</code></li>
-          <li><code>failed to connect</code> → is Anvil running on <code>8545</code>?</li>
-          <li><code>Error (XXXX)</code> on compile → run <code>forge install</code> again</li>
-          <li>Wifi dead → use USB stick / Discord zip of the repos (TAs have them)</li>
-        </ul>
-      </div>
-      <aside class="notes">
-        Offline zip backup is mandatory for NITK wifi. Have forge-std vendored in the zip if needed.
-      </aside>
-    </section>
-
-    <!-- ========== Homework ========== -->
     <section class="slide" data-section="hw">
       <div class="slide-inner">
-        <p class="eyebrow">Homework · before Session 2</p>
-        <ol class="hw-list">
-          <li>Finish both labs if you didn't in the hall</li>
-          <li>Install <strong>MetaMask</strong> (throwaway seed — never mainnet money)</li>
-          <li>Add <strong>Sepolia</strong> · faucet · send one tx to a friend</li>
-          <li>Open that tx on <strong>Sepolia Etherscan</strong></li>
-          <li>Come back ready for <strong>ZK</strong></li>
+        <p class="eyebrow">Homework</p>
+        <h2>Before Session 2</h2>
+        <ol class="big-list">
+          <li><span class="n">01</span><span>Finish both labs if needed</span></li>
+          <li><span class="n">02</span><span>MetaMask with a throwaway seed (never mainnet money)</span></li>
+          <li><span class="n">03</span><span>Sepolia faucet + one send to a friend</span></li>
+          <li><span class="n">04</span><span>Open that tx on Sepolia Etherscan</span></li>
+          <li><span class="n">05</span><span>Come ready for Zero Knowledge</span></li>
         </ol>
       </div>
       <aside class="notes">
-        Pin faucet + repo links in Discord. Warn about seed phrases on projector.
+        Pin faucets. Stay for help.
       </aside>
     </section>
 
     <section class="slide" data-section="hw">
-      <div class="slide-inner hero-slide">
-        <div class="devcon-chip">See you on the road to Mumbai → <a href="https://devcon.org/en/" target="_blank" rel="noopener">devcon.org</a></div>
-        <p class="eyebrow">Next up</p>
-        <h1 class="hero-brand" style="font-size:clamp(2.5rem,6vw,4.5rem)">Session 2</h1>
-        <p class="hero-title">Zero-Knowledge — proving without revealing</p>
-        <p class="hero-meta">Deck + labs linked in Discord. Stay for MetaMask / Foundry help.</p>
-      </div>
-      <aside class="notes">
-        Thank the room. Leave Lab slides accessible via GitHub Pages so students can reopen commands tonight.
-      </aside>
-    </section>
-
-    <!-- ========== Prep appendix ========== -->
-    <section class="slide" data-section="prep">
       <div class="slide-inner">
-        <p class="eyebrow">Presenter appendix</p>
-        <h2>What to prepare</h2>
-        <ul class="plain-list compact">
-          <li>Tabs: <a href="https://devcon.org/en/" style="color:var(--cyan)">devcon.org</a> · mempool.space · Sepolia Etherscan · this deck · Discord</li>
-          <li>Repos: both labs <code>forge build</code> green; offline zip + Ascinema backup</li>
-          <li>Accounts: Anvil defaults; optional Sepolia faucet drip for stuck students</li>
-          <li>Fallback: in-deck sandwich timeline + recorded demos</li>
-        </ul>
+        <p class="eyebrow">Next</p>
+        <h1>Session 2</h1>
+        <p class="lead">Zero Knowledge: proving without revealing</p>
+        <div class="divider"></div>
+        <p class="meta">Deck: road-to-devcon.vercel.app · Labs in Discord · Questions now</p>
       </div>
       <aside class="notes">
-        TA slide — skip in talk or flash at the end.
+        Thank them. Leave lab slides accessible tonight.
       </aside>
     </section>
 
   </main>
 
   <footer class="bottombar">
-    <button type="button" class="nav-btn" id="prev" aria-label="Previous slide">←</button>
-    <div class="progress-wrap">
-      <div class="progress-bar" id="progress"></div>
-    </div>
+    <button type="button" class="nav-btn" id="prev" aria-label="Previous">←</button>
+    <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
     <span class="counter"><span id="current">1</span> / <span id="total">1</span></span>
-    <button type="button" class="nav-btn" id="next" aria-label="Next slide">→</button>
-    <button type="button" class="notes-btn" id="toggle-notes" title="Toggle speaker notes (N)">Notes</button>
+    <button type="button" class="nav-btn" id="next" aria-label="Next">→</button>
+    <button type="button" class="notes-btn" id="toggle-notes">Notes</button>
   </footer>
 
   <div id="notes-panel" class="notes-panel" hidden>
