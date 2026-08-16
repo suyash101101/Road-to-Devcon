@@ -9,3 +9,4 @@ workshops/**/cache/
 workshops/**/out/
 workshops/**/broadcast/
 workshops/**/lib/
+.vercel

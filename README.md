@@ -4,15 +4,18 @@ Interactive workshop track toward [Devcon 8 · Mumbai](https://devcon.org/en/) (
 
 **Theme:** Make Private Apps using Ethereum
 
-| Artifact | Link |
-|----------|------|
-| Session 1 deck (this repo) | GitHub Pages / Vercel |
-| Lab A · mempool & fees | [`mempool-mev`](https://github.com/suyash101101/mempool-mev) |
-| Lab B · sandwich attack | [`sandwich-attack`](https://github.com/suyash101101/sandwich-attack) |
+| Artifact | URL |
+|----------|-----|
+| **Live deck (Vercel)** | https://road-to-devcon.vercel.app |
+| **Live deck (GitHub Pages)** | https://suyash101101.github.io/Road-to-Devcon/ |
+| Lab A · mempool & fees | https://github.com/suyash101101/mempool-mev |
+| Lab B · sandwich attack | https://github.com/suyash101101/sandwich-attack |
 
 ---
 
 ## Present the deck
+
+Open the Vercel link above, or locally:
 
 ```bash
 python3 -m http.server 8080
@@ -20,11 +23,6 @@ python3 -m http.server 8080
 ```
 
 Controls: `→` / `Space` next · `←` prev · `N` notes · `F` fullscreen
-
-### Deploy
-
-- **GitHub Pages:** Settings → Pages → branch `main` / root  
-- **Vercel:** import this repo (static); `vercel.json` included
 
 ---
 
