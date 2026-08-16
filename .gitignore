@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+workshops/**/cache/
+workshops/**/out/
+workshops/**/broadcast/
+workshops/**/lib/
