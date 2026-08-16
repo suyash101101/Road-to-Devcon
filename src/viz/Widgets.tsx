@@ -665,3 +665,173 @@ export function ChainGrowViz() {
     </div>
   )
 }
+
+export function PosStakeViz() {
+  type Val = { id: string; stake: number; honest: boolean }
+  const [vals, setVals] = useState<Val[]>([
+    { id: 'V1', stake: 32, honest: true },
+    { id: 'V2', stake: 64, honest: true },
+    { id: 'V3', stake: 32, honest: true },
+    { id: 'V4', stake: 48, honest: true },
+  ])
+  const [picked, setPicked] = useState<string | null>(null)
+  const [slashFlash, setSlashFlash] = useState<string | null>(null)
+  const [log, setLog] = useState('Stake more ETH to raise selection weight. Propose a block, or simulate a cheat + slash.')
+
+  const total = vals.reduce((s, v) => s + v.stake, 0)
+
+  function propose() {
+    const r = Math.random() * total
+    let acc = 0
+    let winner = vals[0]
+    for (const v of vals) {
+      acc += v.stake
+      if (r <= acc) {
+        winner = v
+        break
+      }
+    }
+    setPicked(winner.id)
+    setSlashFlash(null)
+    setLog(
+      `${winner.id} was selected (stake ${winner.stake} / ${total}). Higher stake = higher chance, not a puzzle race.`,
+    )
+  }
+
+  function boost(id: string) {
+    setVals((vs) => vs.map((v) => (v.id === id ? { ...v, stake: v.stake + 16 } : v)))
+    setLog(`${id} staked +16 ETH. Their weight in the next draw increased.`)
+  }
+
+  function cheat(id: string) {
+    setVals((vs) =>
+      vs.map((v) => (v.id === id ? { ...v, stake: Math.max(0, Math.floor(v.stake * 0.5)), honest: false } : v)),
+    )
+    setSlashFlash(id)
+    setPicked(null)
+    setLog(`${id} cheated. Protocol slashed stake. Skin in the game replaces electricity bills.`)
+  }
+
+  return (
+    <div className="viz viz-lg">
+      <div className="viz-label">Interactive · Proof of Stake selection</div>
+      <div className="controls">
+        <button type="button" className="btn primary" onClick={propose}>
+          Propose next block
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setVals([
+              { id: 'V1', stake: 32, honest: true },
+              { id: 'V2', stake: 64, honest: true },
+              { id: 'V3', stake: 32, honest: true },
+              { id: 'V4', stake: 48, honest: true },
+            ])
+            setPicked(null)
+            setSlashFlash(null)
+            setLog('Reset validators. Stake more, propose, or slash a cheater.')
+          }}
+        >
+          Reset
+        </button>
+      </div>
+      <div className="pos-grid">
+        {vals.map((v) => (
+          <motion.div
+            key={v.id}
+            className={`pos-card ${picked === v.id ? 'picked' : ''} ${slashFlash === v.id ? 'slashed' : ''}`}
+            animate={{ scale: picked === v.id ? 1.03 : 1 }}
+          >
+            <div className="pos-top">
+              <strong>{v.id}</strong>
+              <span className="mono">{Math.round((v.stake / Math.max(total, 1)) * 100)}% weight</span>
+            </div>
+            <div className="pos-stake-track">
+              <motion.div className="pos-stake-fill" animate={{ width: `${(v.stake / Math.max(total, 1)) * 100}%` }} />
+            </div>
+            <div className="mono">{v.stake} ETH staked {!v.honest ? '· slashed' : ''}</div>
+            <div className="controls" style={{ marginTop: 8, marginBottom: 0 }}>
+              <button type="button" className="btn" onClick={() => boost(v.id)}>
+                Stake +16
+              </button>
+              <button type="button" className="btn" onClick={() => cheat(v.id)}>
+                Cheat
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      <p className="viz-status">{log}</p>
+    </div>
+  )
+}
+
+export function GossipViz() {
+  const peers = ['You', 'Node B', 'Node C', 'Node D', 'Node E', 'Node F']
+  const [have, setHave] = useState<boolean[]>(peers.map(() => false))
+  const [phase, setPhase] = useState<'idle' | 'send' | 'flood' | 'done'>('idle')
+  const [log, setLog] = useState('Press Broadcast. Your signed tx hops peer to peer until many mempools hold a copy.')
+
+  async function broadcast() {
+    setHave(peers.map(() => false))
+    setPhase('send')
+    setLog('1. Wallet sends signed tx to one RPC node')
+    setHave([true, false, false, false, false, false])
+    await new Promise((r) => setTimeout(r, 400))
+    setPhase('flood')
+    for (let i = 1; i < peers.length; i++) {
+      await new Promise((r) => setTimeout(r, 220))
+      setHave((h) => h.map((v, idx) => (idx <= i ? true : v)))
+      setLog(`2. Gossip: Node shares with peers (${i + 1}/${peers.length} mempools now see it)`)
+    }
+    setPhase('done')
+    setLog('3. Live and visible: searchers and block producers can read the pending intent.')
+  }
+
+  return (
+    <div className="viz viz-lg">
+      <div className="viz-label">Interactive · How the mempool becomes public</div>
+      <div className="controls">
+        <button type="button" className="btn primary" onClick={broadcast}>
+          Broadcast a tx
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setHave(peers.map(() => false))
+            setPhase('idle')
+            setLog('Press Broadcast. Your signed tx hops peer to peer until many mempools hold a copy.')
+          }}
+        >
+          Reset
+        </button>
+      </div>
+      <div className="phase-pills">
+        {(['send', 'flood', 'done'] as const).map((p) => (
+          <span key={p} className={`phase-pill ${phase === p ? 'on' : ''}`}>
+            {p}
+          </span>
+        ))}
+      </div>
+      <div className="node-grid">
+        {peers.map((p, i) => (
+          <motion.div
+            key={p}
+            className={`node-card ${have[i] ? 'has-tx' : ''}`}
+            animate={{ borderColor: have[i] ? 'var(--gold)' : 'rgba(196,181,253,0.28)' }}
+          >
+            <div className="mono dim">{p}</div>
+            <div className="node-cpu" style={{ fontSize: '1.2rem' }}>
+              {have[i] ? 'mempool ✓' : '...'}
+            </div>
+            <div className="mono tiny dim">{have[i] ? 'holds pending tx' : 'not yet'}</div>
+          </motion.div>
+        ))}
+      </div>
+      <p className="viz-status">{log}</p>
+    </div>
+  )
+}

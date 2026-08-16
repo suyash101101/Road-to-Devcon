@@ -895,3 +895,45 @@ h2.title {
   opacity: 0.6;
   cursor: wait;
 }
+
+.pos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+}
+@media (max-width: 800px) {
+  .pos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.pos-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0.9rem;
+}
+.pos-card.picked {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan);
+}
+.pos-card.slashed {
+  border-color: var(--danger);
+}
+.pos-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  font-size: 1.15rem;
+}
+.pos-stake-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.4rem;
+  overflow: hidden;
+}
+.pos-stake-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+}
+.node-card.has-tx {
+  background: rgba(255, 209, 102, 0.08);
+}

@@ -2,9 +2,11 @@ import type { ReactNode } from 'react'
 import {
   BytecodePipeViz,
   ChainGrowViz,
+  GossipViz,
   MempoolViz,
   MiningViz,
   NodeNetworkViz,
+  PosStakeViz,
   SandwichViz,
 } from '../viz/Widgets'
 
@@ -258,6 +260,25 @@ export const slides: Slide[] = [
     ),
   },
   {
+    id: 'nonce',
+    notes: 'Explain the puzzle knob. Nonce = number used once.',
+    content: (
+      <>
+        <p className="eyebrow">What the miners are actually doing</p>
+        <h2 className="title">The nonce is the dial they twist</h2>
+        <ol className="steps">
+          <li>
+            A candidate block has transactions + a link to the previous block + a field called the <strong>nonce</strong> (number used once).
+          </li>
+          <li>Miners change the nonce again and again and hash the whole block header.</li>
+          <li>They need a hash that is rare enough (enough leading zeros). That is the puzzle.</li>
+          <li>First valid nonce wins. Others verify the hash in a moment. Hard to find, easy to check.</li>
+        </ol>
+        <p className="callout">In the mining demo, those rising hash counters are stand-ins for nonce attempts. Real Bitcoin mining does this at enormous scale.</p>
+      </>
+    ),
+  },
+  {
     id: 'mempool-name',
     notes: 'Mempool HERE with mining, not later.',
     content: (
@@ -272,13 +293,66 @@ export const slides: Slide[] = [
     ),
   },
   {
+    id: 'gas-early',
+    notes: 'Yes: introduce fees/gas HERE before the fee auction viz.',
+    content: (
+      <>
+        <p className="eyebrow">Paying to enter the next page</p>
+        <h2 className="title">Fees (and later, gas) are your bid</h2>
+        <ol className="steps">
+          <li>Block space is scarce. Not every pending tx fits in the next block.</li>
+          <li>You attach a fee tip. Higher tip = more attractive to whoever builds the block.</li>
+          <li>On Ethereum this meter is called <strong>gas</strong>: you pay for computation and for space.</li>
+          <li>Same idea you are about to click: highest fees usually enter first.</li>
+        </ol>
+        <p className="callout">Gas also stops infinite loops from freezing the shared computer. Fee auction + anti-spam in one mechanism.</p>
+      </>
+    ),
+  },
+  {
     id: 'mempool-viz',
-    notes: 'Spawn and mine. This replaces mempool.space.',
+    notes: 'Spawn and mine. Fees already introduced.',
     content: (
       <>
         <p className="eyebrow">Live mempool</p>
         <h2 className="title">Fees decide who enters the next block</h2>
         <MempoolViz />
+      </>
+    ),
+  },
+  {
+    id: 'gossip',
+    notes: 'Click Broadcast. This answers how mempools sync.',
+    content: (
+      <>
+        <p className="eyebrow">How it goes live on every node</p>
+        <h2 className="title">Gossip: there is no single mempool server</h2>
+        <GossipViz />
+      </>
+    ),
+  },
+  {
+    id: 'ledger-sync',
+    notes: 'Clarify simultaneous vs same result.',
+    content: (
+      <>
+        <p className="eyebrow">How the shared ledger updates</p>
+        <h2 className="title">Not magic simultaneity. Same rules, same result.</h2>
+        <ol className="steps">
+          <li>
+            <strong>Pending:</strong> many nodes independently hold copies of the mempool after gossip (seconds, not one global database write).
+          </li>
+          <li>
+            <strong>Sealed:</strong> a miner/validator publishes a block. Peers check it (PoW hash or PoS rules).
+          </li>
+          <li>
+            <strong>Apply:</strong> every full node re-executes the txs locally and updates its own copy of state.
+          </li>
+          <li>
+            <strong>Agree:</strong> honest nodes following the same rules land on the same balances. That agreement is the ledger.
+          </li>
+        </ol>
+        <p className="callout">They do not share one RAM chip. They converge because the protocol is deterministic: same inputs → same outputs.</p>
       </>
     ),
   },
@@ -315,8 +389,8 @@ export const slides: Slide[] = [
         <h2 className="title">What Bitcoin nailed</h2>
         <ol className="steps">
           <li>Shared history without a single ledger owner.</li>
-          <li>PoW to decide the next page.</li>
-          <li>A public mempool as the on-ramp into blocks.</li>
+          <li>PoW (nonce grinding) to decide the next page.</li>
+          <li>A gossiped public mempool as the on-ramp into blocks.</li>
         </ol>
         <p className="callout">So what was still missing?</p>
       </>
@@ -463,65 +537,16 @@ export const slides: Slide[] = [
   },
   {
     id: 'gas',
-    notes: 'Gas as bid.',
+    notes: 'Short recap. Full fee story already landed with mempool.',
     content: (
       <>
-        <p className="eyebrow">Paying for shared compute</p>
-        <h2 className="title">Gas</h2>
-        <p className="lead">Every operation costs gas. You bid for block space and computation.</p>
+        <p className="eyebrow">Gas again (Ethereum)</p>
+        <h2 className="title">Same fee auction, now metering code</h2>
         <ol className="steps">
-          <li>Stops infinite loops from freezing the world computer.</li>
-          <li>Pays the people who secure and propose blocks.</li>
-          <li>Same fee auction you saw in the mempool simulator.</li>
+          <li>Every EVM opcode costs gas. Complex contracts cost more.</li>
+          <li>You set a tip / max fee so validators prefer your tx.</li>
+          <li>Failed calls can still burn gas. Loops can empty a wallet if unbounded.</li>
         </ol>
-      </>
-    ),
-  },
-  {
-    id: 'apps-layer',
-    notes: 'Brief standards map. Not a full Week 3 lecture.',
-    content: (
-      <>
-        <p className="eyebrow">What people build</p>
-        <h2 className="title">Tokens, NFTs, DAOs (quick map)</h2>
-        <div className="grid-2">
-          <div className="panel">
-            <h3>ERC-20</h3>
-            <p>Fungible tokens. Same unit interchangeable. Balances in a mapping. USDC-style assets.</p>
-          </div>
-          <div className="panel">
-            <h3>ERC-721 NFTs</h3>
-            <p>Unique ids. ownerOf(tokenId). Art, tickets, identity objects.</p>
-          </div>
-          <div className="panel">
-            <h3>DAOs</h3>
-            <p>Shared treasury + voting rules in contracts. Code constrains the money.</p>
-          </div>
-          <div className="panel">
-            <h3>Why standards?</h3>
-            <p>Wallets and exchanges speak one interface. Your token becomes usable everywhere.</p>
-          </div>
-        </div>
-      </>
-    ),
-  },
-  {
-    id: 'paymasters',
-    notes: 'UX future. Keep light.',
-    content: (
-      <>
-        <p className="eyebrow">Better UX on the horizon</p>
-        <h2 className="title">Gasless-ish flows and paymasters</h2>
-        <ol className="steps">
-          <li>Classic UX: user must hold ETH just to pay gas. Harsh for beginners.</li>
-          <li>
-            <strong>Account abstraction / smart wallets</strong>: account is a contract with richer rules.
-          </li>
-          <li>
-            <strong>Paymaster</strong>: a sponsor can pay gas for the user (app pays, or pay in tokens).
-          </li>
-        </ol>
-        <p className="sub">You do not need to implement this today. Know the problem it solves: onboarding without buying ETH first.</p>
       </>
     ),
   },
@@ -547,17 +572,27 @@ export const slides: Slide[] = [
   },
   {
     id: 'pos',
-    notes: 'One clear PoS explanation.',
+    notes: 'Explain then click the interactive.',
     content: (
       <>
         <p className="eyebrow">Chapter 6 · Proof of Stake</p>
         <h2 className="title">Ethereum moved from PoW to PoS</h2>
         <ol className="steps">
           <li>Validators lock (stake) ETH as collateral.</li>
-          <li>The protocol picks who proposes the next block.</li>
+          <li>The protocol picks who proposes the next block (weighted by stake).</li>
           <li>Cheat and you can lose stake. Honesty is economically enforced.</li>
         </ol>
-        <p className="callout">Same public ledger idea. Different way to choose the next page. Far less energy than mining puzzles.</p>
+      </>
+    ),
+  },
+  {
+    id: 'pos-viz',
+    notes: 'Stake, propose, slash live.',
+    content: (
+      <>
+        <p className="eyebrow">Live demo</p>
+        <h2 className="title">Stake weight, propose, slash</h2>
+        <PosStakeViz />
       </>
     ),
   },
@@ -728,6 +763,80 @@ function transfer(address to, uint256 amt) public {
           <li>Spender (like Uniswap) calls transferFrom(user, to, amount).</li>
         </ol>
         <p className="callout">This permission step is why DEX flows ask you to "Approve" before "Swap".</p>
+      </>
+    ),
+  },
+  {
+    id: 'erc20-deep',
+    notes: 'Now that mappings make sense, expand ERC-20.',
+    content: (
+      <>
+        <p className="eyebrow">After Solidity basics · standards</p>
+        <h2 className="title">ERC-20 in more detail</h2>
+        <ol className="steps">
+          <li>Fungible: every unit is interchangeable (like rupees, not like house deeds).</li>
+          <li>Core surface: balanceOf, transfer, approve, transferFrom, totalSupply, decimals.</li>
+          <li>decimals are a convention (often 18). UI shows 1.5; contract stores 1.5e18.</li>
+          <li>Wallets detect the interface and show a nice token row automatically.</li>
+        </ol>
+        <p className="sub">You already wrote the heart of it: a mapping of balances plus transfer rules.</p>
+      </>
+    ),
+  },
+  {
+    id: 'nft-deep',
+    notes: 'Contrast with fungible.',
+    content: (
+      <>
+        <p className="eyebrow">Non-fungible</p>
+        <h2 className="title">ERC-721 NFTs</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>What changes</h3>
+            <p>No amounts. Each tokenId is unique. ownerOf(id) returns who holds it.</p>
+          </div>
+          <div className="panel">
+            <h3>Metadata</h3>
+            <p>tokenURI points to JSON (name, image). Image often on IPFS. Contract stores ownership; media may live elsewhere.</p>
+          </div>
+        </div>
+        <p className="callout">Tickets, collectibles, on-chain identity objects: same idea, unique ids.</p>
+      </>
+    ),
+  },
+  {
+    id: 'dao-deep',
+    notes: 'Treasury + votes.',
+    content: (
+      <>
+        <p className="eyebrow">Shared treasuries</p>
+        <h2 className="title">DAOs (simple picture)</h2>
+        <ol className="steps">
+          <li>A contract holds funds.</li>
+          <li>Token holders (or members) create proposals.</li>
+          <li>Votes pass a threshold → the contract executes the spend / change.</li>
+          <li>Rules are public. Politics still exist, but the money path is constrained by code.</li>
+        </ol>
+      </>
+    ),
+  },
+  {
+    id: 'paymasters',
+    notes: 'UX future after they know gas.',
+    content: (
+      <>
+        <p className="eyebrow">Better UX on the horizon</p>
+        <h2 className="title">Gasless-ish flows and paymasters</h2>
+        <ol className="steps">
+          <li>Classic UX: user must hold ETH just to pay gas. Harsh for beginners.</li>
+          <li>
+            <strong>Account abstraction / smart wallets</strong>: account is a contract with richer rules.
+          </li>
+          <li>
+            <strong>Paymaster</strong>: a sponsor can pay gas for the user (app pays, or pay in tokens).
+          </li>
+        </ol>
+        <p className="sub">Know the problem it solves: onboarding without buying ETH first.</p>
       </>
     ),
   },
