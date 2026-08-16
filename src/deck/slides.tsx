@@ -379,16 +379,55 @@ export const slides: Slide[] = [
         <p className="eyebrow">How you show up on Ethereum</p>
         <h2 className="title">Keys, not usernames</h2>
         <div className="grid-2">
-          <div className="panel">
+          <div className="panel danger">
             <h3>Private key</h3>
-            <p>Secret. Signs transactions. Lose it and the account is gone. Leak it and the account is stolen.</p>
+            <p>Secret number. Signs transactions. Lose it = funds gone. Leak it = funds stolen. Never screenshot. Never paste in Discord.</p>
           </div>
-          <div className="panel">
-            <h3>Address / EOA</h3>
-            <p>Public account id derived from the key. Safe to share. Wallet apps (like MetaMask) help you manage keys.</p>
+          <div className="panel ok">
+            <h3>Public address (EOA)</h3>
+            <p>Derived from the private key. Safe to share. Looks like 0xabc... Safe to receive funds here.</p>
           </div>
         </div>
-        <p className="sub">EOA means Externally Owned Account: controlled by a person with a key, not by contract code.</p>
+        <p className="sub">EOA = Externally Owned Account. A human key, not contract code.</p>
+      </>
+    ),
+  },
+  {
+    id: 'keys-deep',
+    notes: 'Seed phrase vs private key vs address.',
+    content: (
+      <>
+        <p className="eyebrow">Three layers people confuse</p>
+        <h2 className="title">Seed phrase → keys → address</h2>
+        <ol className="steps">
+          <li>
+            <strong>Seed / recovery phrase</strong> (12 or 24 words): master backup. Controls every account the wallet derives.
+          </li>
+          <li>
+            <strong>Private key</strong>: one account's signing secret (derived from the seed).
+          </li>
+          <li>
+            <strong>Address</strong>: public id others use to pay you.
+          </li>
+        </ol>
+        <p className="callout">If someone has your seed, they have everything. Treat it like the PIN + ATM card + house key combined.</p>
+      </>
+    ),
+  },
+  {
+    id: 'metamask',
+    notes: 'Live MetaMask walkthrough if projector allows.',
+    content: (
+      <>
+        <p className="eyebrow">Your first wallet</p>
+        <h2 className="title">MetaMask + Sepolia test ETH</h2>
+        <ol className="steps">
+          <li>Install MetaMask (browser extension). Create a new wallet. Write the seed on paper offline.</li>
+          <li>Switch network to <strong>Sepolia</strong> (Ethereum test network). Fake money only.</li>
+          <li>Copy your address. Use a Sepolia faucet to mint / drip test ETH.</li>
+          <li>Send a tiny amount to a friend. Open the tx on Sepolia Etherscan.</li>
+        </ol>
+        <p className="callout">Never put mainnet money on a workshop seed. Throwaway wallet only.</p>
       </>
     ),
   },
@@ -411,16 +450,13 @@ export const slides: Slide[] = [
   },
   {
     id: 'evm-where',
-    notes: 'Critical: where is the CPU.',
+    notes: 'Critical: where is the CPU. Click Run.',
     content: (
       <>
         <p className="eyebrow">Where is the CPU?</p>
         <h2 className="title">
           The <span className="accent">EVM</span> lives on every full node
         </h2>
-        <p className="sub">
-          EVM = Ethereum Virtual Machine: the shared rulebook for running contract bytecode. Not a single server in one city.
-        </p>
         <NodeNetworkViz />
       </>
     ),
@@ -438,6 +474,54 @@ export const slides: Slide[] = [
           <li>Pays the people who secure and propose blocks.</li>
           <li>Same fee auction you saw in the mempool simulator.</li>
         </ol>
+      </>
+    ),
+  },
+  {
+    id: 'apps-layer',
+    notes: 'Brief standards map. Not a full Week 3 lecture.',
+    content: (
+      <>
+        <p className="eyebrow">What people build</p>
+        <h2 className="title">Tokens, NFTs, DAOs (quick map)</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>ERC-20</h3>
+            <p>Fungible tokens. Same unit interchangeable. Balances in a mapping. USDC-style assets.</p>
+          </div>
+          <div className="panel">
+            <h3>ERC-721 NFTs</h3>
+            <p>Unique ids. ownerOf(tokenId). Art, tickets, identity objects.</p>
+          </div>
+          <div className="panel">
+            <h3>DAOs</h3>
+            <p>Shared treasury + voting rules in contracts. Code constrains the money.</p>
+          </div>
+          <div className="panel">
+            <h3>Why standards?</h3>
+            <p>Wallets and exchanges speak one interface. Your token becomes usable everywhere.</p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'paymasters',
+    notes: 'UX future. Keep light.',
+    content: (
+      <>
+        <p className="eyebrow">Better UX on the horizon</p>
+        <h2 className="title">Gasless-ish flows and paymasters</h2>
+        <ol className="steps">
+          <li>Classic UX: user must hold ETH just to pay gas. Harsh for beginners.</li>
+          <li>
+            <strong>Account abstraction / smart wallets</strong>: account is a contract with richer rules.
+          </li>
+          <li>
+            <strong>Paymaster</strong>: a sponsor can pay gas for the user (app pays, or pay in tokens).
+          </li>
+        </ol>
+        <p className="sub">You do not need to implement this today. Know the problem it solves: onboarding without buying ETH first.</p>
       </>
     ),
   },
@@ -632,6 +716,22 @@ function transfer(address to, uint256 amt) public {
     ),
   },
   {
+    id: 'sol-approve',
+    notes: 'Approve pattern for DEXs.',
+    content: (
+      <>
+        <p className="eyebrow">ERC-20 pattern</p>
+        <h2 className="title">approve + transferFrom</h2>
+        <ol className="steps">
+          <li>You cannot pull tokens from someone without permission.</li>
+          <li>User calls approve(spender, amount).</li>
+          <li>Spender (like Uniswap) calls transferFrom(user, to, amount).</li>
+        </ol>
+        <p className="callout">This permission step is why DEX flows ask you to "Approve" before "Swap".</p>
+      </>
+    ),
+  },
+  {
     id: 'sol-visibility',
     notes: 'Visibility.',
     content: (
@@ -678,7 +778,7 @@ function transfer(address to, uint256 amt) public {
   },
   {
     id: 'sol-events',
-    notes: 'Events briefly.',
+    notes: 'Events with indexed.',
     content: (
       <>
         <p className="eyebrow">Feedback to apps</p>
@@ -686,21 +786,103 @@ function transfer(address to, uint256 amt) public {
         <Code>{`event Transfer(address indexed from, address indexed to, uint256 amt);
 
 function transfer(address to, uint256 amt) public {
-    // ... update balances ...
+    balances[msg.sender] -= amt;
+    balances[to] += amt;
     emit Transfer(msg.sender, to, amt);
 }`}</Code>
-        <p className="sub">Apps listen to logs. Cheaper than stuffing everything into storage.</p>
+        <p className="sub">
+          <strong>indexed</strong> lets explorers filter logs (max 3 indexed fields). Apps subscribe to events instead of polling storage.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'sol-errors',
+    notes: 'Custom errors briefly.',
+    content: (
+      <>
+        <p className="eyebrow">Cheaper failures</p>
+        <h2 className="title">Custom errors vs long revert strings</h2>
+        <Code>{`error InsufficientBalance(uint256 have, uint256 need);
+
+function transfer(address to, uint256 amt) public {
+    if (balances[msg.sender] < amt) {
+        revert InsufficientBalance(balances[msg.sender], amt);
+    }
+    // ...
+}`}</Code>
+        <p className="sub">Short custom errors cost less gas than long require strings.</p>
       </>
     ),
   },
   {
     id: 'bytecode',
-    notes: 'Pipeline viz.',
+    notes: 'Pipeline viz including ABI.',
     content: (
       <>
         <p className="eyebrow">Under the hood</p>
-        <h2 className="title">Solidity is not what nodes execute</h2>
+        <h2 className="title">Bytecode and ABI</h2>
         <BytecodePipeViz />
+      </>
+    ),
+  },
+  {
+    id: 'abi-deep',
+    notes: 'ABI as translation manual.',
+    content: (
+      <>
+        <p className="eyebrow">ABI</p>
+        <h2 className="title">The menu wallets use to talk to bytecode</h2>
+        <ol className="steps">
+          <li>Bytecode is opaque hex. Humans cannot see transfer() by staring at it.</li>
+          <li>ABI is JSON: function names, arg types, return types.</li>
+          <li>It maps names to 4-byte selectors inside the bytecode.</li>
+          <li>Without ABI, your frontend cannot encode calls cleanly.</li>
+        </ol>
+      </>
+    ),
+  },
+  {
+    id: 'ethers',
+    notes: 'ethers.js triad.',
+    content: (
+      <>
+        <p className="eyebrow">Talking from JavaScript</p>
+        <h2 className="title">ethers.js in three objects</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>Provider</h3>
+            <p>Read-only connection to a node (RPC). Balance checks, logs, chain id.</p>
+          </div>
+          <div className="panel">
+            <h3>Signer / Wallet</h3>
+            <p>Can sign and send txs. MetaMask injects a signer.</p>
+          </div>
+          <div className="panel">
+            <h3>Contract</h3>
+            <p>address + ABI + provider/signer. JS methods map to on-chain functions.</p>
+          </div>
+          <div className="panel">
+            <h3>Minimal idea</h3>
+            <p>const c = new Contract(addr, abi, signer); await c.inc();</p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'openzeppelin',
+    notes: 'Do not roll your own token.',
+    content: (
+      <>
+        <p className="eyebrow">Do not reinvent secure building blocks</p>
+        <h2 className="title">OpenZeppelin</h2>
+        <ol className="steps">
+          <li>Battle-tested contracts: ERC20, ERC721, Ownable, AccessControl, Pausable...</li>
+          <li>Used across the industry. Audited patterns. Still read what you inherit.</li>
+          <li>Example: import "@openzeppelin/contracts/token/ERC20/ERC20.sol";</li>
+        </ol>
+        <p className="callout">For workshop tokens and permissions, start from OpenZeppelin instead of blank Solidity.</p>
       </>
     ),
   },
@@ -736,13 +918,51 @@ function transfer(address to, uint256 amt) public {
     ),
   },
   {
+    id: 'mev-actors',
+    notes: 'Searcher / builder / validator sketch.',
+    content: (
+      <>
+        <p className="eyebrow">Who extracts value</p>
+        <h2 className="title">Searchers, builders, proposers</h2>
+        <ol className="steps">
+          <li>
+            <strong>Searchers</strong> scan mempools (and private orderflow) for profitable reorderings.
+          </li>
+          <li>
+            <strong>Builders</strong> assemble full blocks / bundles optimized for fees + MEV.
+          </li>
+          <li>
+            <strong>Proposers / validators</strong> propose the block that earns them rewards (often via builder markets).
+          </li>
+        </ol>
+        <p className="sub">You do not need the full PBS diagram tonight. Remember: ordering is valuable because intent is visible early.</p>
+      </>
+    ),
+  },
+  {
     id: 'sandwich',
-    notes: 'Click 0-3.',
+    notes: 'Click through 0-3 slowly.',
     content: (
       <>
         <p className="eyebrow">Sandwich attack</p>
         <h2 className="title">Front-run, victim, back-run</h2>
         <SandwichViz />
+      </>
+    ),
+  },
+  {
+    id: 'sandwich-why',
+    notes: 'Slippage is the budget.',
+    content: (
+      <>
+        <p className="eyebrow">Why sandwiches work</p>
+        <h2 className="title">Slippage tolerance is the attack budget</h2>
+        <ol className="steps">
+          <li>Victim sets max acceptable price move (slippage) so the swap does not revert on volatility.</li>
+          <li>Searcher pushes the price to the edge of that tolerance, then back.</li>
+          <li>Victim still "succeeds" but receives a worse rate. Difference = extractable value.</li>
+          <li>Private orderflow / better privacy / tighter slippage / protecting RPCs reduce (not always erase) this.</li>
+        </ol>
       </>
     ),
   },
