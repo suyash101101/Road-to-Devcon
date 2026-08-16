@@ -1,26 +1,24 @@
-# Session 1 teaching prompt (revised)
+# Session 1 prompt (React deck)
 
-Audience: absolute beginners. Strong CS, zero crypto.
+Absolute beginners. All departments. No CS-only analogies.
 
-## Flow (fixed order)
+## Flow
 
-1. Orient: you already know DB/HTTP; map to chain ideas
-2. Ledgers + trust + 2008 (why)
-3. Bitcoin mechanics: tx, waiting room, block, interactive PoW mine
-4. Ethereum: programmable ledger
-5. Where is the EVM/CPU? On every full node (interactive)
-6. Keys, EOA, wallet, signed tx path
-7. Solidity → bytecode → nodes (interactive pipeline) + gas
-8. Smart contracts + Solidity detail (Counter, mapping, gotchas)
-9. Mempool deep dive + built-in simulator (replaces mempool.space)
-10. MEV + sandwich interactive + Foundry demo
-11. Privacy / AI bridge
-12. Labs e2e + homework
+1. Title / arc
+2. 2008 crisis → faith in banks cracks
+3. Satoshi whitepaper → Bitcoin
+4. Blockchain what/how · chain viz
+5. PoW · mining viz
+6. Mempool in the same chapter (simulator) · pending = public
+7. What was missing: compute
+8. Vitalik / Ethereum · what it solved
+9. Keys, txs, EVM on every node, gas
+10. New gap → PoS
+11. Smart contracts + deep Solidity
+12. MEV / sandwich · labs · homework
 
-## Constraints
+## Product
 
-- No em dashes
-- Classroom-scale type
-- Minimal AI chrome (no text gradients, soft radius)
-- Every term shown or analogised before naming
-- Visualize whenever possible
+Vite + React + TypeScript + framer-motion
+Classroom-scale type, vivid Devcon-inspired motion UI
+Built-in mempool (no mempool.space dependency)
