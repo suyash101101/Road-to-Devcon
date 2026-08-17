@@ -53,14 +53,16 @@ contract SandwichScript is Script {
         // --- Victim intent (would normally sit in the mempool) ---
         uint256 victimIn = 10 ether;
         uint256 fairOut = amm.getAmountOut(victimIn, amm.reserveA(), amm.reserveB());
-        // Victim allows 3% slippage — enough room for a sandwich
-        uint256 victimMinOut = (fairOut * 97) / 100;
+        // Victim allows 10% slippage — realistic DEX default, room for a moderate sandwich
+        uint256 victimMinOut = (fairOut * 90) / 100;
 
-        console2.log("=== VICTIM INTENT (public in mempool) ===");
+        console2.log("=== VICTIM INTENT (PUBLIC in mempool - anyone can read this) ===");
         console2.log("Swap 10 WETH -> MEME, minOut", victimMinOut / 1e18);
+        console2.log("Privacy leak: amount, direction, and slippage are visible BEFORE confirmation");
 
-        // --- 1) Searcher front-run ---
-        uint256 searcherIn = 20 ether;
+        // --- 1) Searcher front-run (copied from public mempool) ---
+        uint256 searcherStartWeth = weth.balanceOf(searcher);
+        uint256 searcherIn = 5 ether;
         vm.startBroadcast(SEARCHER_KEY);
         weth.approve(address(amm), type(uint256).max);
         token.approve(address(amm), type(uint256).max);
@@ -89,10 +91,14 @@ contract SandwichScript is Script {
         vm.stopBroadcast();
 
         uint256 searcherWeth = weth.balanceOf(searcher);
+        uint256 profitWei = searcherWeth - searcherStartWeth;
         console2.log("=== BACK-RUN ===");
         console2.log("Searcher sold for WETH", soldFor / 1e18);
         console2.log("Searcher final WETH   ", searcherWeth / 1e18);
-        console2.log("Searcher profit WETH  ", (searcherWeth - 50 ether) / 1e18);
-        console2.log("=== DONE — sandwich complete ===");
+        console2.log("Searcher profit (wei) ", profitWei);
+        console2.log("=== WHY PRIVACY MATTERS ===");
+        console2.log("Pending txs are public. Bots saw victim intent and reordered around it.");
+        console2.log("Victim lost MEME tokens. Searcher captured value. Intent was never private.");
+        console2.log("=== DONE - sandwich complete ===");
     }
 }

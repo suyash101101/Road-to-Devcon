@@ -1,20 +1,38 @@
-# Sandwich Attack Lab (Lab B)
+# Lab B — Sandwich Attack (MEV Demo)
 
-Road to Devcon · Session 1 · NITK Surathkal
+**Web3 Uncovered · Road to Devcon · Session 1**
 
-Deploy a tiny AMM, sandwich a victim swap on Anvil, and read **searcher profit** in your terminal.
+> Bots can **read your pending swap** in the mempool, trade before and after you, and extract value. This lab runs that attack on a local AMM.
 
-Pair with Lab A ([`mempool-mev`](https://github.com/suyash101101/mempool-mev)) — that one shows the public waiting room; this one shows the attack.
+Pair with **Lab A:** [`mempool-mev`](https://github.com/suyash101101/mempool-mev) — shows the public waiting room first.
 
-> Teaching code only. No fees, no production safety. Do **not** use on mainnet.
+> Teaching code only. **Do not use on mainnet.**
 
 ---
 
-## Prerequisites
+## The privacy crux
+
+```
+[Searcher BUY]  →  [Victim SWAP]  →  [Searcher SELL]
+   front-run         worse price        back-run
+```
+
+1. Victim broadcasts a swap → it sits **publicly** in the mempool
+2. Searcher copies the intent (token, size, slippage)
+3. Searcher front-runs (pumps price), victim fills worse, searcher back-runs (profit)
+
+**Core lesson:** On a public ledger, **transaction intent is not private** before confirmation. That is why privacy tech (Session 2: ZK) matters.
+
+---
+
+## Prerequisites (once)
 
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
+
+forge --version
+anvil --version
 ```
 
 ---
@@ -25,67 +43,91 @@ foundryup
 git clone https://github.com/suyash101101/sandwich-attack.git
 cd sandwich-attack
 
-forge install foundry-rs/forge-std --no-commit
+forge install foundry-rs/forge-std
 forge build
 forge test -vv
 ```
 
----
+Expected:
 
-## Run the sandwich (e2e)
-
-**Terminal A**
-
-```bash
-anvil
+```text
+[PASS] test_sandwichExtractsValueFromVictim()
+  victim shortfall (MEME) 8093
+  searcher profit (wei) <positive number>
 ```
 
-**Terminal B**
+---
+
+## Run end-to-end
+
+### Terminal A
+
+```bash
+anvil --port 8545
+```
+
+### Terminal B
 
 ```bash
 forge script script/Sandwich.s.sol:SandwichScript \
   --broadcast \
-  --rpc-url http://127.0.0.1:8545
+  --rpc-url http://127.0.0.1:8545 \
+  -vv
 ```
 
-You should see logs like:
+### Expected output
 
 ```text
+=== VICTIM INTENT (PUBLIC in mempool — anyone can read this) ===
+Swap 10 WETH -> MEME, minOut 81818
+
 === FRONT-RUN ===
+Searcher bought MEME 47619
+
 === VICTIM EXECUTES ===
-Victim lost MEME    ...
+Victim got MEME       82815
+Fair would have been  90909
+Victim lost MEME      8093
+
 === BACK-RUN ===
-Searcher profit WETH ...
+Searcher profit (wei)  <positive>
+
+=== WHY PRIVACY MATTERS ===
+Pending txs are public. Bots saw victim intent and reordered around it.
 ```
 
 ---
 
-## How it maps to reality
+## How it maps to mainnet
 
-| Demo step | Real mempool |
-|-----------|----------------|
-| Victim intends 10 WETH → MEME | Pending Uniswap tx (public) |
-| Searcher buys first | Front-run / bundle |
-| Victim fills worse | Slippage eaten |
-| Searcher sells into victim | Back-run profit |
+| Demo | Real network |
+|------|--------------|
+| Victim swap pending | Uniswap swap visible in mempool |
+| Searcher front-run | Higher gas / Flashbots bundle |
+| Victim gets less tokens | Slippage tolerance eaten |
+| Searcher back-run | MEV bot profit |
 
 ---
 
 ## Layout
 
 ```text
-src/MockERC20.sol
-src/SimpleAMM.sol
-script/Sandwich.s.sol
-test/Sandwich.t.sol
+src/MockERC20.sol      # minimal ERC-20
+src/SimpleAMM.sol      # x*y=k AMM (no fees, teaching only)
+script/Sandwich.s.sol  # full sandwich simulation
+test/Sandwich.t.sol    # automated checks
 ```
+
+---
 
 ## Exercises
 
-1. Change searcher size `20 ether` → `5 ether` — profit?
-2. Tighten victim slippage to 0.1% — does victim revert?
-3. Add a 0.3% fee to the AMM — still sandwichable?
+1. Change front-run from `5 ether` to `2 ether` — how does victim loss change?
+2. Tighten slippage from `90%` to `98%` — does the victim tx revert?
+3. Add a 0.3% swap fee to the AMM — is it still sandwichable?
+
+---
 
 ## Safety
 
-Anvil keys are public. Never use them with real funds.
+Anvil private keys are **public test keys**. Never fund them on mainnet.

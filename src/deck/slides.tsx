@@ -8,6 +8,7 @@ import {
   NodeNetworkViz,
   PosStakeViz,
   SandwichViz,
+  TxConfirmFlowViz,
 } from '../viz/Widgets'
 
 export type Slide = {
@@ -537,16 +538,56 @@ export const slides: Slide[] = [
   },
   {
     id: 'gas',
-    notes: 'Short recap. Full fee story already landed with mempool.',
+    notes: 'Short recap. Next slide splits base fee vs tip (EIP-1559).',
     content: (
       <>
         <p className="eyebrow">Gas again (Ethereum)</p>
         <h2 className="title">Same fee auction, now metering code</h2>
         <ol className="steps">
           <li>Every EVM opcode costs gas. Complex contracts cost more.</li>
-          <li>You set a tip / max fee so validators prefer your tx.</li>
+          <li>You pay <strong>gas used × gas price</strong>. Wallets help you set the price.</li>
           <li>Failed calls can still burn gas. Loops can empty a wallet if unbounded.</li>
         </ol>
+        <p className="sub">Since EIP-1559, that “gas price” splits into <strong>base fee</strong> + <strong>tip</strong> — next slide.</p>
+      </>
+    ),
+  },
+  {
+    id: 'eip1559-fees',
+    notes: 'Memorize: tip is YOUR bid. Base fee is network-set. Lab uses legacy gasPrice for clarity.',
+    content: (
+      <>
+        <p className="eyebrow">EIP-1559 · how Ethereum fees work today</p>
+        <h2 className="title">Base fee + priority tip</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>Base fee</h3>
+            <ul>
+              <li>Set by the <strong>network</strong> per block (goes up when blocks are full).</li>
+              <li><strong>Burned</strong> — removed from supply.</li>
+              <li>You do not choose it; you must pay at least this much.</li>
+            </ul>
+          </div>
+          <div className="panel ok">
+            <h3>Priority fee (tip)</h3>
+            <ul>
+              <li><strong>You choose</strong> this — your bid to jump the queue.</li>
+              <li>Goes to the <strong>validator / block builder</strong>.</li>
+              <li>Higher tip → more likely to be included <em>soon</em> (and ordered first).</li>
+            </ul>
+          </div>
+        </div>
+        <p className="callout">
+          <strong>Total ≈ gas used × (base fee + tip).</strong> MetaMask shows “max fee” and “priority fee”. Searchers outbid you on the <span className="accent">tip</span>.
+        </p>
+        <div className="panel" style={{ marginTop: '0.75rem' }}>
+          <h3>In our mempool lab (simplified)</h3>
+          <p>We use <strong>legacy</strong> txs with plain <code>gasPrice</code> so you can read the race clearly in <code>txpool_content</code>:</p>
+          <ul>
+            <li><code>0x3b9aca00</code> = <strong>1 gwei</strong> (low bid)</li>
+            <li><code>0xba43b7400</code> = <strong>50 gwei</strong> (high bid)</li>
+          </ul>
+        </div>
       </>
     ),
   },
@@ -751,76 +792,6 @@ function transfer(address to, uint256 amt) public {
     ),
   },
   {
-    id: 'sol-approve',
-    notes: 'Approve pattern for DEXs.',
-    content: (
-      <>
-        <p className="eyebrow">ERC-20 pattern</p>
-        <h2 className="title">approve + transferFrom</h2>
-        <ol className="steps">
-          <li>You cannot pull tokens from someone without permission.</li>
-          <li>User calls approve(spender, amount).</li>
-          <li>Spender (like Uniswap) calls transferFrom(user, to, amount).</li>
-        </ol>
-        <p className="callout">This permission step is why DEX flows ask you to "Approve" before "Swap".</p>
-      </>
-    ),
-  },
-  {
-    id: 'erc20-deep',
-    notes: 'Now that mappings make sense, expand ERC-20.',
-    content: (
-      <>
-        <p className="eyebrow">After Solidity basics · standards</p>
-        <h2 className="title">ERC-20 in more detail</h2>
-        <ol className="steps">
-          <li>Fungible: every unit is interchangeable (like rupees, not like house deeds).</li>
-          <li>Core surface: balanceOf, transfer, approve, transferFrom, totalSupply, decimals.</li>
-          <li>decimals are a convention (often 18). UI shows 1.5; contract stores 1.5e18.</li>
-          <li>Wallets detect the interface and show a nice token row automatically.</li>
-        </ol>
-        <p className="sub">You already wrote the heart of it: a mapping of balances plus transfer rules.</p>
-      </>
-    ),
-  },
-  {
-    id: 'nft-deep',
-    notes: 'Contrast with fungible.',
-    content: (
-      <>
-        <p className="eyebrow">Non-fungible</p>
-        <h2 className="title">ERC-721 NFTs</h2>
-        <div className="grid-2">
-          <div className="panel">
-            <h3>What changes</h3>
-            <p>No amounts. Each tokenId is unique. ownerOf(id) returns who holds it.</p>
-          </div>
-          <div className="panel">
-            <h3>Metadata</h3>
-            <p>tokenURI points to JSON (name, image). Image often on IPFS. Contract stores ownership; media may live elsewhere.</p>
-          </div>
-        </div>
-        <p className="callout">Tickets, collectibles, on-chain identity objects: same idea, unique ids.</p>
-      </>
-    ),
-  },
-  {
-    id: 'dao-deep',
-    notes: 'Treasury + votes.',
-    content: (
-      <>
-        <p className="eyebrow">Shared treasuries</p>
-        <h2 className="title">DAOs (simple picture)</h2>
-        <ol className="steps">
-          <li>A contract holds funds.</li>
-          <li>Token holders (or members) create proposals.</li>
-          <li>Votes pass a threshold → the contract executes the spend / change.</li>
-          <li>Rules are public. Politics still exist, but the money path is constrained by code.</li>
-        </ol>
-      </>
-    ),
-  },
-  {
     id: 'paymasters',
     notes: 'UX future after they know gas.',
     content: (
@@ -841,56 +812,11 @@ function transfer(address to, uint256 amt) public {
     ),
   },
   {
-    id: 'sol-visibility',
-    notes: 'Visibility.',
-    content: (
-      <>
-        <p className="eyebrow">Who can call what</p>
-        <h2 className="title">Function visibility</h2>
-        <ol className="steps">
-          <li>
-            <strong>public</strong>: anyone (or other contracts) can call.
-          </li>
-          <li>
-            <strong>external</strong>: meant for outside callers.
-          </li>
-          <li>
-            <strong>internal</strong>: this contract + children.
-          </li>
-          <li>
-            <strong>private</strong>: only this contract. Note: private is not secret on-chain data.
-          </li>
-        </ol>
-        <p className="callout">Private hides it from other contracts. Observers can still often read raw storage.</p>
-      </>
-    ),
-  },
-  {
-    id: 'sol-view',
-    notes: 'view vs transactions.',
-    content: (
-      <>
-        <p className="eyebrow">Reads vs writes</p>
-        <h2 className="title">view / pure versus state changes</h2>
-        <div className="grid-2">
-          <div className="panel ok">
-            <h3>view / pure</h3>
-            <p>Do not change state. Wallets can call them without sending a blockchain transaction (usually free from your perspective).</p>
-          </div>
-          <div className="panel">
-            <h3>State-changing</h3>
-            <p>Needs a signed tx, gas, mempool, inclusion. This is when the world updates.</p>
-          </div>
-        </div>
-      </>
-    ),
-  },
-  {
     id: 'sol-events',
     notes: 'Events with indexed.',
     content: (
       <>
-        <p className="eyebrow">Feedback to apps</p>
+        <p className="eyebrow">Advanced Solidity</p>
         <h2 className="title">Events are a cheap news ticker</h2>
         <Code>{`event Transfer(address indexed from, address indexed to, uint256 amt);
 
@@ -906,92 +832,229 @@ function transfer(address to, uint256 amt) public {
     ),
   },
   {
-    id: 'sol-errors',
-    notes: 'Custom errors briefly.',
+    id: 'sol-compilation',
+    notes: 'solc splits output. Body vs brain map.',
     content: (
       <>
-        <p className="eyebrow">Cheaper failures</p>
-        <h2 className="title">Custom errors vs long revert strings</h2>
-        <Code>{`error InsufficientBalance(uint256 have, uint256 need);
-
-function transfer(address to, uint256 amt) public {
-    if (balances[msg.sender] < amt) {
-        revert InsufficientBalance(balances[msg.sender], amt);
-    }
-    // ...
-}`}</Code>
-        <p className="sub">Short custom errors cost less gas than long require strings.</p>
-      </>
-    ),
-  },
-  {
-    id: 'bytecode',
-    notes: 'Pipeline viz including ABI.',
-    content: (
-      <>
-        <p className="eyebrow">Under the hood</p>
-        <h2 className="title">Bytecode and ABI</h2>
-        <BytecodePipeViz />
-      </>
-    ),
-  },
-  {
-    id: 'abi-deep',
-    notes: 'ABI as translation manual.',
-    content: (
-      <>
-        <p className="eyebrow">ABI</p>
-        <h2 className="title">The menu wallets use to talk to bytecode</h2>
-        <ol className="steps">
-          <li>Bytecode is opaque hex. Humans cannot see transfer() by staring at it.</li>
-          <li>ABI is JSON: function names, arg types, return types.</li>
-          <li>It maps names to 4-byte selectors inside the bytecode.</li>
-          <li>Without ABI, your frontend cannot encode calls cleanly.</li>
-        </ol>
-      </>
-    ),
-  },
-  {
-    id: 'ethers',
-    notes: 'ethers.js triad.',
-    content: (
-      <>
-        <p className="eyebrow">Talking from JavaScript</p>
-        <h2 className="title">ethers.js in three objects</h2>
+        <p className="eyebrow">Contract internals · compilation</p>
+        <h2 className="title">solc turns .sol into two artifacts</h2>
         <div className="grid-2">
-          <div className="panel">
-            <h3>Provider</h3>
-            <p>Read-only connection to a node (RPC). Balance checks, logs, chain id.</p>
+          <div className="panel ok">
+            <h3>Input</h3>
+            <p>Human-readable Solidity (<code>.sol</code>)</p>
           </div>
           <div className="panel">
-            <h3>Signer / Wallet</h3>
-            <p>Can sign and send txs. MetaMask injects a signer.</p>
+            <h3>Process</h3>
+            <p>Solidity compiler (<strong>solc</strong>) typechecks + compiles</p>
           </div>
           <div className="panel">
-            <h3>Contract</h3>
-            <p>address + ABI + provider/signer. JS methods map to on-chain functions.</p>
+            <h3>Output 1 — Bytecode</h3>
+            <p>The <strong>body</strong>: executable EVM logic deployed on-chain</p>
           </div>
           <div className="panel">
-            <h3>Minimal idea</h3>
-            <p>const c = new Contract(addr, abi, signer); await c.inc();</p>
+            <h3>Output 2 — ABI</h3>
+            <p>The <strong>brain map</strong>: JSON interface for callers</p>
+          </div>
+        </div>
+        <p className="sub">One source file → compiler → bytecode + ABI. They land in different places after compile.</p>
+      </>
+    ),
+  },
+  {
+    id: 'sol-source',
+    notes: 'SimpleStorage. set costs gas, get is view.',
+    content: (
+      <>
+        <p className="eyebrow">The human-readable code</p>
+        <h2 className="title">What you write (.sol)</h2>
+        <Code>{`// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract SimpleStorage {
+    uint256 private storedValue;
+
+    function set(uint256 value) public {
+        storedValue = value; // write — costs gas
+    }
+
+    function get() public view returns (uint256) {
+        return storedValue; // read — no state change
+    }
+}`}</Code>
+        <p className="sub"><code>forge compile</code> / <code>solc</code> reads this and emits bytecode + ABI into <code>out/</code>.</p>
+      </>
+    ),
+  },
+  {
+    id: 'bytecode-hex',
+    notes: 'Not human readable. This is what gets deployed.',
+    content: (
+      <>
+        <p className="eyebrow">Bytecode · the body</p>
+        <h2 className="title">What the EVM actually runs</h2>
+        <ol className="steps">
+          <li>Long hex string made of <strong>opcodes</strong>: PUSH, ADD, SSTORE, etc.</li>
+          <li>Deploy = upload this hex to every node at a contract address.</li>
+          <li>Blockchain only stores and executes this — not your <code>.sol</code> file.</li>
+        </ol>
+        <Code>{`0x608060405234801561001057600080fd5b50600436106100365760003560e01c806360fe47b11461003b5780636d4ce63c14610057575b600080fd5b610055600480360381019061005091906101565b610075565b005b...`}</Code>
+        <p className="sub">Opaque without the ABI. You cannot tell <code>set()</code> from <code>get()</code> by staring at hex.</p>
+      </>
+    ),
+  },
+  {
+    id: 'abi-interface',
+    notes: 'ABI packs/unpacks data. 4-byte selectors.',
+    content: (
+      <>
+        <p className="eyebrow">ABI · the language interface</p>
+        <h2 className="title">JSON menu for talking to bytecode</h2>
+        <ol className="steps">
+          <li>Lists function names (<code>set</code>, <code>get</code>), param types, return types.</li>
+          <li>Defines how to <strong>pack</strong> and <strong>unpack</strong> calldata.</li>
+          <li>Maps human names → 4-byte <strong>function selectors</strong> inside bytecode.</li>
+        </ol>
+        <p className="callout">Apps never send <code>set(42)</code> as text. They encode calldata using the ABI, then send bytes to the contract address.</p>
+      </>
+    ),
+  },
+  {
+    id: 'abi-json',
+    notes: 'Show get (view) vs set (nonpayable) in JSON.',
+    content: (
+      <>
+        <p className="eyebrow">ABI · translation manual</p>
+        <h2 className="title">abi.json for SimpleStorage</h2>
+        <Code>{`[
+  {
+    "name": "get",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [],
+    "outputs": [{ "type": "uint256" }]
+  },
+  {
+    "name": "set",
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "inputs": [{ "name": "value", "type": "uint256" }],
+    "outputs": []
+  }
+]`}</Code>
+        <p className="sub"><code>get()</code> is a read (view). <code>set(uint256)</code> is a write and costs gas. Wallets and ethers.js read this JSON to build calls.</p>
+      </>
+    ),
+  },
+  {
+    id: 'abi-why',
+    notes: 'Bytecode is a black box without ABI.',
+    content: (
+      <>
+        <p className="eyebrow">Why ABI exists</p>
+        <h2 className="title">Bytecode alone is a black box</h2>
+        <p className="lead">
+          Staring at hex, you cannot tell which bytes are <code>transfer()</code> vs <code>getBalance()</code>. The ABI maps human names to internal selectors.
+        </p>
+        <div className="grid-2">
+          <div className="panel danger">
+            <h3>Without ABI</h3>
+            <p>Machine code with no labels. You must guess encodings by hand.</p>
+          </div>
+          <div className="panel ok">
+            <h3>With ABI</h3>
+            <p>Libraries turn <code>contract.set(42)</code> into the right calldata + know how to decode the return value.</p>
           </div>
         </div>
       </>
     ),
   },
   {
+    id: 'bytecode',
+    notes: 'Click Step through the pipeline.',
+    content: (
+      <>
+        <p className="eyebrow">How it is wired · interactive</p>
+        <h2 className="title">Source → solc → bytecode + ABI → network</h2>
+        <BytecodePipeViz />
+        <p className="sub" style={{ marginTop: '0.75rem' }}>
+          Deploy stores <strong>bytecode</strong> at an address. Apps use <strong>ABI + RPC</strong> to call functions.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'rpc-portal',
+    notes: 'Browser cannot talk P2P. RPC is the portal.',
+    content: (
+      <>
+        <p className="eyebrow">Before we interact</p>
+        <h2 className="title">RPC — your portal to the chain</h2>
+        <p className="lead">
+          The blockchain is a P2P network. Your browser cannot join it directly. An <strong>RPC URL</strong> points at one node (yours, Infura, Alchemy, Anvil) that translates requests.
+        </p>
+        <div className="grid-2">
+          <div className="panel ok">
+            <h3>User app</h3>
+            <p>React, wallet UI, Foundry script — speaks HTTP/JSON-RPC.</p>
+          </div>
+          <div className="panel">
+            <h3>RPC node</h3>
+            <p>One Ethereum node with an API. Forwards reads, submits signed txs.</p>
+          </div>
+          <div className="panel">
+            <h3>Blockchain</h3>
+            <p>Thousands of peers. Shared history + state. Your RPC is one window in.</p>
+          </div>
+          <div className="panel danger">
+            <h3>Remember</h3>
+            <p>MetaMask does not run a full node in the browser. It talks to an RPC URL you configure.</p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'ethers',
+    notes: 'Conductors: ABI + address + RPC. ethers preferred.',
+    content: (
+      <>
+        <p className="eyebrow">Frontend libraries · the conductors</p>
+        <h2 className="title">ABI + address + RPC URL → ethers.js</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>Provider</h3>
+            <p>Read-only RPC connection. Balances, logs, chain id.</p>
+          </div>
+          <div className="panel">
+            <h3>Signer / Wallet</h3>
+            <p>Signs txs. MetaMask injects a signer.</p>
+          </div>
+          <div className="panel">
+            <h3>Contract</h3>
+            <p><code>address + ABI + signer</code> → JS methods map to on-chain functions.</p>
+          </div>
+          <div className="panel ok">
+            <h3>Minimal call</h3>
+            <p><code>const c = new Contract(addr, abi, signer); await c.set(42);</code></p>
+          </div>
+        </div>
+        <p className="sub">ethers.js (or web3.js) handles JSON-RPC encoding so you do not format raw requests by hand.</p>
+      </>
+    ),
+  },
+  {
     id: 'openzeppelin',
-    notes: 'Do not roll your own token.',
+    notes: 'Do not roll your own secure primitives.',
     content: (
       <>
         <p className="eyebrow">Do not reinvent secure building blocks</p>
         <h2 className="title">OpenZeppelin</h2>
         <ol className="steps">
-          <li>Battle-tested contracts: ERC20, ERC721, Ownable, AccessControl, Pausable...</li>
+          <li>Battle-tested contracts: Ownable, AccessControl, Pausable, ReentrancyGuard...</li>
           <li>Used across the industry. Audited patterns. Still read what you inherit.</li>
-          <li>Example: import "@openzeppelin/contracts/token/ERC20/ERC20.sol";</li>
+          <li>Example: import "@openzeppelin/contracts/access/Ownable.sol";</li>
         </ol>
-        <p className="callout">For workshop tokens and permissions, start from OpenZeppelin instead of blank Solidity.</p>
+        <p className="callout">For workshop permissions and safety rails, start from OpenZeppelin instead of blank Solidity.</p>
       </>
     ),
   },
@@ -1009,6 +1072,118 @@ function transfer(address to, uint256 amt) public {
           <li>Failed transactions can still cost gas.</li>
           <li>Unbounded loops can make functions too expensive to call.</li>
         </ol>
+      </>
+    ),
+  },
+
+  // ---- Nodes, RPC, mempool (bridge Solidity → labs) ----
+  {
+    id: 'nodes-no-server',
+    notes: 'After Solidity: where does this code actually run? No single server.',
+    content: (
+      <>
+        <p className="eyebrow">Under the hood · nodes</p>
+        <h2 className="title">There is no single Ethereum server</h2>
+        <p className="lead">
+          Thousands of computers run the same software. Each holds a copy of history and state. They stay in sync because they follow the <span className="accent">same rules</span>.
+        </p>
+        <p className="sub">Your Counter, your token balances, your swap — every full node stores and re-runs the same result.</p>
+      </>
+    ),
+  },
+  {
+    id: 'node-types',
+    notes: 'Three node types. RPC is what MetaMask hits.',
+    content: (
+      <>
+        <p className="eyebrow">Types of nodes</p>
+        <h2 className="title">Full node · RPC node · Validator</h2>
+        <div className="grid-2">
+          <div className="panel ok">
+            <h3>Full node</h3>
+            <p>Stores all blocks + current state. Validates every tx. Keeps a local <strong>mempool</strong> copy.</p>
+          </div>
+          <div className="panel">
+            <h3>RPC node</h3>
+            <p>Exposes an HTTP API. <strong>MetaMask talks to this.</strong> Infura, Alchemy, or your local Anvil.</p>
+          </div>
+          <div className="panel">
+            <h3>Block builder / validator</h3>
+            <p>Picks which pending txs enter the next block. On Ethereum today: Proof of Stake validators.</p>
+          </div>
+          <div className="panel danger">
+            <h3>What each stores</h3>
+            <p><strong>Blockchain</strong> = history · <strong>State</strong> = balances &amp; contract vars · <strong>Mempool</strong> = pending txs (temporary)</p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'node-flow',
+    notes: 'Walk the flow top to bottom. Pause on builder step — MEV hook.',
+    content: (
+      <>
+        <p className="eyebrow">Confirm → Confirmed</p>
+        <h2 className="title">The path every transaction takes</h2>
+        <TxConfirmFlowViz />
+        <p className="callout" style={{ marginTop: '0.85rem' }}>
+          Pending txs are visible during steps 2–4. That window is why fee races and sandwich attacks are possible.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'mempool-visible',
+    notes: 'This is the privacy leak. Point to cast command — live demo in mempool lab.',
+    content: (
+      <>
+        <p className="eyebrow">The mempool · what leaks</p>
+        <h2 className="title">
+          Pending usually means <span className="accent">public</span>
+        </h2>
+        <div className="grid-2">
+          <div className="panel danger">
+            <h3>Visible before confirmation</h3>
+            <ul>
+              <li>Sender address</li>
+              <li>Target contract (which app)</li>
+              <li>Calldata (swap amount, function)</li>
+              <li>Gas tip (how urgent)</li>
+            </ul>
+          </div>
+          <div className="panel ok">
+            <h3>See it live (mempool fee-race lab)</h3>
+            <p>While Anvil is waiting to mine a block, run:</p>
+            <Code>{`cast rpc txpool_content \\
+  --rpc-url http://127.0.0.1:8545`}</Code>
+            <p className="sub">Two pending pings with different gas prices — same data bots scrape on mainnet.</p>
+          </div>
+        </div>
+        <p className="callout">Local mempool on your Anvil node is still public to anyone with RPC access. Gossip spreads copies to peers on real networks.</p>
+      </>
+    ),
+  },
+  {
+    id: 'privacy-crux-slide',
+    notes: 'Memorize this line for the meet.',
+    content: (
+      <>
+        <p className="eyebrow">The privacy crux</p>
+        <h2 className="title">Intent is visible before it executes</h2>
+        <p className="lead">
+          Privacy is not only hiding your name. It is hiding <span className="accent">what you plan to do</span> before the chain finalizes it.
+        </p>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>Mempool fee-race lab</h3>
+            <p>Two pending txs compete on gas tip. You peek the public txpool. Proves visibility + ordering.</p>
+          </div>
+          <div className="panel danger">
+            <h3>Sandwich attack lab</h3>
+            <p>Bots read that same pool. Front-run your swap, then back-run for profit.</p>
+          </div>
+        </div>
       </>
     ),
   },
@@ -1050,46 +1225,45 @@ function transfer(address to, uint256 amt) public {
   },
   {
     id: 'sandwich',
-    notes: 'Click through 0-3 slowly.',
+    notes: 'Click 0→3 slowly. Numbers match sandwich-attack lab output exactly.',
     content: (
       <>
-        <p className="eyebrow">Sandwich attack</p>
-        <h2 className="title">Front-run, victim, back-run</h2>
+        <p className="eyebrow">Sandwich attack · step by step</p>
+        <h2 className="title">Pool: 100 WETH / 1M MEME · victim swaps 10 WETH</h2>
         <SandwichViz />
       </>
     ),
   },
   {
-    id: 'sandwich-why',
-    notes: 'Slippage is the budget.',
+    id: 'sandwich-flow',
+    notes: 'Static recap if you want no clicking. Same numbers as the widget.',
     content: (
       <>
-        <p className="eyebrow">Why sandwiches work</p>
-        <h2 className="title">Slippage tolerance is the attack budget</h2>
+        <p className="eyebrow">Sandwich · the four beats</p>
+        <h2 className="title">What happens in the AMM (lab-verified)</h2>
         <ol className="steps">
-          <li>Victim sets max acceptable price move (slippage) so the swap does not revert on volatility.</li>
-          <li>Searcher pushes the price to the edge of that tolerance, then back.</li>
-          <li>Victim still "succeeds" but receives a worse rate. Difference = extractable value.</li>
-          <li>Private orderflow / better privacy / tighter slippage / protecting RPCs reduce (not always erase) this.</li>
+          <li><strong>Intent</strong> — Victim pending: 10 WETH → MEME. Fair = 90,909 MEME. Min = 81,818 (10% slippage). <em>Public in mempool.</em></li>
+          <li><strong>Front-run</strong> — Searcher spends 5 WETH, buys 47,619 MEME. Price drops to ~9,070 MEME/WETH.</li>
+          <li><strong>Victim</strong> — Still swaps 10 WETH but only gets 82,815 MEME. Lost 8,093 vs fair. Tx succeeds.</li>
+          <li><strong>Back-run</strong> — Searcher sells 47,619 MEME back. Net profit ≈ <strong>0.97 WETH</strong> (970654627539503386 wei).</li>
         </ol>
+        <p className="callout">The victim is the filling. The bot is the bread on both sides.</p>
       </>
     ),
   },
   {
-    id: 'sandwich-demo',
-    notes: 'Run Foundry live.',
+    id: 'sandwich-why',
+    notes: 'Slippage is the budget. Three ingredients.',
     content: (
       <>
-        <p className="eyebrow">Live demo</p>
-        <h2 className="title">Simulate it with Foundry</h2>
-        <Code>{`# Terminal A
-anvil
-
-# Terminal B
-cd sandwich-attack
-forge script script/Sandwich.s.sol:SandwichScript \\
-  --broadcast --rpc-url http://127.0.0.1:8545`}</Code>
-        <p className="sub">Look for victim loss and searcher profit in the logs.</p>
+        <p className="eyebrow">Why sandwiches work</p>
+        <h2 className="title">Three ingredients</h2>
+        <ol className="steps">
+          <li><strong>Public mempool</strong> — bot sees your pending swap (amount, pair, slippage).</li>
+          <li><strong>AMM math</strong> — bot's trade moves the price (x × y = k).</li>
+          <li><strong>Slippage tolerance</strong> — victim accepts up to X% worse; that X is the bot's budget.</li>
+        </ol>
+        <p className="callout">Victim tx still succeeds — they just get fewer tokens. That is why it is insidious.</p>
       </>
     ),
   },
@@ -1111,25 +1285,26 @@ forge script script/Sandwich.s.sol:SandwichScript \\
   // ---- Labs ----
   {
     id: 'labs',
-    notes: 'Leave on screen.',
+    notes: 'Two repos, one story. Fee-race lab first.',
     content: (
       <>
-        <p className="eyebrow">Hands-on</p>
-        <h2 className="title">Two repos</h2>
+        <p className="eyebrow">Hands-on · two labs</p>
+        <h2 className="title">One story, two proofs</h2>
         <div className="repo-grid">
           <div className="repo-card">
-            <div className="tag">Lab A</div>
+            <div className="tag">Run first · mempool fee-race</div>
             <h3>mempool-mev</h3>
-            <p>Fee race in a local txpool. See pending work and inclusion priority.</p>
+            <p><strong>What it proves:</strong> pending txs are public. Two accounts race on gas tip — higher tip wins inclusion. You inspect the txpool with <code>cast</code>.</p>
             <code>github.com/suyash101101/mempool-mev</code>
           </div>
           <div className="repo-card">
-            <div className="tag">Lab B</div>
+            <div className="tag">Run second · sandwich attack</div>
             <h3>sandwich-attack</h3>
-            <p>Tiny AMM. Sandwich a swap. Read the profit.</p>
+            <p><strong>What it proves:</strong> bots read that same public pool. On a tiny AMM they front-run your swap, let you execute at a worse price, then back-run for profit.</p>
             <code>github.com/suyash101101/sandwich-attack</code>
           </div>
         </div>
+        <p className="callout" style={{ marginTop: '1rem' }}>Fee-race lab = the leak. Sandwich lab = who profits from the leak.</p>
       </>
     ),
   },
@@ -1155,45 +1330,144 @@ forge script script/Sandwich.s.sol:SandwichScript \\
           </li>
           <li>
             <span className="n">04</span>
-            <span>Two terminals ready</span>
+            <span>Two (or three) terminals ready</span>
           </li>
         </ol>
       </>
     ),
   },
   {
-    id: 'lab-a',
-    notes: 'Lab A commands.',
+    id: 'mempool-lab-what',
+    notes: 'Explain Ping.sol. Use demo.sh for live — not forge script alone.',
     content: (
       <>
-        <p className="eyebrow">Lab A</p>
+        <p className="eyebrow">Mempool fee-race lab · what it does</p>
+        <h2 className="title">mempool-mev — public waiting room</h2>
+        <ol className="steps">
+          <li>Deploys <strong>Ping.sol</strong> — a tiny counter (harmless target).</li>
+          <li>Account #1 sends <code>ping()</code> with <strong>gasPrice = 1 gwei</strong> (low tip).</li>
+          <li>Account #2 sends <code>ping()</code> with <strong>gasPrice = 50 gwei</strong> (high tip).</li>
+          <li>Both sit in Anvil's txpool — you read them with <code>txpool_content</code>.</li>
+          <li>Higher tip is ordered <strong>first</strong> in the block.</li>
+        </ol>
+        <p className="sub">Real bots watch the same pool for Uniswap swaps — same mechanism, higher stakes.</p>
+      </>
+    ),
+  },
+  {
+    id: 'mempool-lab-run',
+    notes: 'demo.sh is the live path. Terminal C txpool is the money moment.',
+    content: (
+      <>
+        <p className="eyebrow">Mempool fee-race lab · run</p>
         <h2 className="title">mempool-mev</h2>
         <Code>{`git clone https://github.com/suyash101101/mempool-mev.git
 cd mempool-mev
-forge install foundry-rs/forge-std --no-commit
+forge install foundry-rs/forge-std
+forge test -vv
 
-anvil --block-time 8
+# Terminal A — slow blocks (time to peek)
+anvil --block-time 8 --port 8545
 
-forge script script/FeeRace.s.sol:FeeRaceScript \\
+# Terminal B — recommended live demo
+chmod +x demo.sh && ./demo.sh
+
+# Terminal C (when demo.sh pauses!)
+cast rpc txpool_content --rpc-url http://127.0.0.1:8545`}</Code>
+      </>
+    ),
+  },
+  {
+    id: 'mempool-lab-output',
+    notes: 'Point at gasPrice hex. High tip is first in block — not always lastCaller.',
+    content: (
+      <>
+        <p className="eyebrow">Mempool fee-race lab · what to look for</p>
+        <h2 className="title">Expected output — checklist</h2>
+        <div className="grid-2">
+          <div className="panel ok">
+            <h3>txpool_content (pending)</h3>
+            <ul>
+              <li>Two pending <code>ping()</code> txs</li>
+              <li>Same <code>to</code> (Ping contract)</li>
+              <li><code>gasPrice: 0x3b9aca00</code> → 1 gwei</li>
+              <li><code>gasPrice: 0xba43b7400</code> → 50 gwei</li>
+            </ul>
+          </div>
+          <div className="panel danger">
+            <h3>After block mines</h3>
+            <Code>{`cast tx <LOW_HASH>  --rpc-url ... | grep gasPrice
+# gasPrice  1000000000   (1 gwei)
+
+cast tx <HIGH_HASH> --rpc-url ... | grep gasPrice
+# gasPrice  50000000000  (50 gwei)`}</Code>
+          </div>
+        </div>
+        <p className="callout">
+          <strong>High tip goes first</strong> in the block. <code>lastCaller</code> is whoever pinged <em>last</em> — so it may be the low-tip account if both fit in one block.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'sandwich-lab-what',
+    notes: 'Three actors: deployer, searcher, victim.',
+    content: (
+      <>
+        <p className="eyebrow">Sandwich attack lab · what it does</p>
+        <h2 className="title">sandwich-attack — MEV in action</h2>
+        <ol className="steps">
+          <li>Deploys <strong>SimpleAMM</strong> (100 WETH / 1M MEME pool).</li>
+          <li><strong>Front-run:</strong> searcher buys MEME with 5 WETH (price rises).</li>
+          <li><strong>Victim:</strong> swaps 10 WETH for MEME at worse rate.</li>
+          <li><strong>Back-run:</strong> searcher sells MEME back (~0.97 WETH profit).</li>
+        </ol>
+        <p className="sub">Victim intent (amount, pair, slippage) is logged as PUBLIC — same data a bot reads in the mempool.</p>
+      </>
+    ),
+  },
+  {
+    id: 'sandwich-lab-run',
+    notes: 'Sandwich lab commands.',
+    content: (
+      <>
+        <p className="eyebrow">Sandwich attack lab · run</p>
+        <h2 className="title">sandwich-attack</h2>
+        <Code>{`git clone https://github.com/suyash101101/sandwich-attack.git
+cd sandwich-attack
+forge install foundry-rs/forge-std
+forge test -vv
+
+# Terminal A
+anvil --port 8545
+
+# Terminal B
+forge script script/Sandwich.s.sol:SandwichScript \\
   --broadcast --rpc-url http://127.0.0.1:8545 -vv`}</Code>
       </>
     ),
   },
   {
-    id: 'lab-b',
-    notes: 'Lab B commands.',
+    id: 'sandwich-lab-output',
+    notes: 'Pause on Victim lost MEME 8093 and profit wei line.',
     content: (
       <>
-        <p className="eyebrow">Lab B</p>
-        <h2 className="title">sandwich-attack</h2>
-        <Code>{`git clone https://github.com/suyash101101/sandwich-attack.git
-cd sandwich-attack
-forge install foundry-rs/forge-std --no-commit
-forge test -vv
+        <p className="eyebrow">Sandwich attack lab · what to look for</p>
+        <h2 className="title">Expected output (verified live)</h2>
+        <Code>{`=== VICTIM INTENT (PUBLIC in mempool) ===
+Swap 10 WETH -> MEME, minOut 81818
 
-anvil
-forge script script/Sandwich.s.sol:SandwichScript \\
-  --broadcast --rpc-url http://127.0.0.1:8545`}</Code>
+=== FRONT-RUN ===
+Searcher bought MEME 47619
+
+=== VICTIM EXECUTES ===
+Victim got MEME       82815
+Fair would have been  90909
+Victim lost MEME      8093
+
+=== BACK-RUN ===
+Searcher profit (wei)  970654627539503386  (~0.97 WETH)`}</Code>
+        <p className="callout">Tx succeeded. Victim was not hacked — out-traded because swap intent was public while pending.</p>
       </>
     ),
   },

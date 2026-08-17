@@ -30,13 +30,15 @@ contract SandwichTest is Test {
 
     function test_sandwichExtractsValueFromVictim() public {
         uint256 fairOut = amm.getAmountOut(10 ether, amm.reserveA(), amm.reserveB());
-        uint256 minOut = (fairOut * 97) / 100;
+        uint256 minOut = (fairOut * 90) / 100;
+
+        uint256 searcherStart = weth.balanceOf(searcher);
 
         // Front-run
         vm.startPrank(searcher);
         weth.approve(address(amm), type(uint256).max);
         token.approve(address(amm), type(uint256).max);
-        uint256 bought = amm.swapExactIn(true, 20 ether, 0);
+        uint256 bought = amm.swapExactIn(true, 5 ether, 0);
         vm.stopPrank();
 
         // Victim
@@ -53,10 +55,10 @@ contract SandwichTest is Test {
         vm.stopPrank();
 
         uint256 searcherFinal = weth.balanceOf(searcher);
-        assertGt(searcherFinal, 50 ether, "searcher should end with more WETH than they started");
+        uint256 profitWei = searcherFinal - searcherStart;
+        assertGt(profitWei, 0, "searcher should profit from reordering");
         console2.log("victim shortfall (MEME)", (fairOut - victimOut) / 1e18);
         console2.log("searcher back-run WETH", soldFor / 1e18);
-        console2.log("searcher final WETH", searcherFinal / 1e18);
-        console2.log("searcher profit WETH", (searcherFinal - 50 ether) / 1e18);
+        console2.log("searcher profit (wei)", profitWei);
     }
 }

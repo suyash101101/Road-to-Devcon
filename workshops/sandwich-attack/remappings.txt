@@ -1,2 +1,1 @@
-# Sandwich MEV Workshop — Foundry
 forge-std/=lib/forge-std/src/

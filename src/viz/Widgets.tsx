@@ -430,11 +430,11 @@ export function BytecodePipeViz() {
     { t: 'Nodes', d: 'Store + re-execute' },
   ]
   const msgs = [
-    'You write contract logic in Solidity.',
-    'solc emits bytecode (body) and ABI (interface).',
-    'Bytecode example: 0x608060405234801561001057600080fd5b50...',
-    'ABI maps transfer(address,uint256) to a 4-byte selector.',
-    'Deploy stores bytecode at an address. Wallets + ethers.js use the ABI to encode calls.',
+    'You write contract logic in Solidity (.sol) — e.g. SimpleStorage with set() and get().',
+    'solc emits two artifacts: bytecode (body) and ABI (brain map / JSON interface).',
+    'Bytecode: 0x608060405234801561001057600080fd5b50... — opcodes like PUSH, SSTORE. Deployed to every node.',
+    'ABI maps set(uint256) and get() to 4-byte selectors so wallets know how to encode calls.',
+    'Deploy stores bytecode at a contract address. Apps use ABI + RPC URL + ethers.js to interact.',
   ]
   const [i, setI] = useState(-1)
 
@@ -467,71 +467,142 @@ export function BytecodePipeViz() {
 }
 
 export function SandwichViz() {
-  const captions = [
-    'Victim wants to buy TOKEN with 10 ETH. Tx sits in the mempool with 1% slippage. Public intent.',
-    'Searcher sees it, pays a higher tip, buys TOKEN first. Pool price rises before the victim lands.',
-    'Victim still executes inside slippage. They get fewer TOKEN than the fair price. Tx succeeds anyway.',
-    'Searcher sells TOKEN into the victim buy. Spread = MEV profit. Victim paid the sandwich tax.',
+  const steps = [
+    {
+      tab: '0 Intent',
+      title: 'Victim wants MEME — tx sits in the public mempool',
+      poolWeth: 100,
+      poolMeme: 1_000_000,
+      spot: 10_000,
+      trade: null as null | { who: string; in: string; out: string; tone: 'bad' | 'ok' },
+      rows: [
+        { k: 'Victim plan', v: 'Swap 10 WETH → MEME (buy MEME with WETH)' },
+        { k: 'Fair output (no bot)', v: '90,909 MEME' },
+        { k: 'Min acceptable (10% slippage)', v: '81,818 MEME' },
+        { k: 'Mempool visibility', v: 'from, to, amount, minOut — all public before Confirm' },
+      ],
+      searcherWeth: 50,
+      searcherProfit: null as string | null,
+      foot: 'Bot reads this pending swap. Nothing is encrypted in the default mempool.',
+    },
+    {
+      tab: '1 Front-run',
+      title: 'Searcher buys MEME first — price moves against victim',
+      poolWeth: 105,
+      poolMeme: 952_381,
+      spot: 9_070,
+      trade: { who: 'Searcher (front-run)', in: '5 WETH in', out: '47,619 MEME out', tone: 'bad' },
+      rows: [
+        { k: 'AMM rule', v: 'x × y = k — adding WETH removes MEME from pool' },
+        { k: 'Pool after', v: '105 WETH · 952,381 MEME' },
+        { k: 'Price moved', v: '10,000 → ~9,070 MEME per WETH' },
+        { k: 'Why it works', v: 'Higher gas tip → tx lands before victim in the block' },
+      ],
+      searcherWeth: 45,
+      searcherProfit: null,
+      foot: 'Searcher now holds MEME. Victim has not swapped yet — but the price already worsened.',
+    },
+    {
+      tab: '2 Victim',
+      title: 'Victim swap succeeds — but gets fewer MEME',
+      poolWeth: 115,
+      poolMeme: 869_566,
+      spot: 7_561,
+      trade: { who: 'Victim', in: '10 WETH in', out: '82,815 MEME out', tone: 'ok' },
+      rows: [
+        { k: 'Victim received', v: '82,815 MEME' },
+        { k: 'Fair (step 0)', v: '90,909 MEME' },
+        { k: 'Victim lost', v: '8,093 MEME (~9%)' },
+        { k: 'Tx status', v: 'Success — still above minOut 81,818' },
+      ],
+      searcherWeth: 45,
+      searcherProfit: null,
+      foot: 'Not hacked. Victim was out-traded because intent was visible while pending.',
+    },
+    {
+      tab: '3 Back-run',
+      title: 'Searcher sells MEME back — captures the spread',
+      poolWeth: 109,
+      poolMeme: 917_185,
+      spot: 8_415,
+      trade: { who: 'Searcher (back-run)', in: '47,619 MEME in', out: '~5.97 WETH out', tone: 'bad' },
+      rows: [
+        { k: 'Searcher started', v: '50 WETH' },
+        { k: 'Spent on front-run', v: '5 WETH' },
+        { k: 'Got back from sell', v: '~5.97 WETH' },
+        { k: 'Net profit', v: '~0.97 WETH (970654627539503386 wei)' },
+      ],
+      searcherWeth: 50,
+      searcherProfit: '~0.97 WETH',
+      foot: 'Sandwich complete: buy → victim fills at worse price → sell. Profit paid by victim.',
+    },
   ]
-  const prices = [100, 118, 118, 104]
   const [step, setStep] = useState(0)
+  const s = steps[step]
+  const maxPool = 1_000_000
 
   return (
-    <div className="viz viz-lg">
-      <div className="viz-label">Interactive · Sandwich economics</div>
+    <div className="viz viz-lg sandwich-viz">
+      <div className="viz-label">Interactive · Sandwich on SimpleAMM (lab-verified numbers)</div>
       <div className="controls">
-        {[
-          '0 Intent',
-          '1 Front-run',
-          '2 Victim',
-          '3 Back-run',
-        ].map((label, s) => (
-          <button key={label} type="button" className={`btn ${step === s ? 'active' : ''}`} onClick={() => setStep(s)}>
-            {label}
+        {steps.map((st, i) => (
+          <button key={st.tab} type="button" className={`btn ${step === i ? 'active' : ''}`} onClick={() => setStep(i)}>
+            {st.tab}
           </button>
         ))}
       </div>
-      <div className="viz-2">
+      <p className="mono accent sand-step-title">{s.title}</p>
+      <div className="viz-2 sand-grid">
         <div className="panel viz-panel">
-          <h3>Pool price (TOKEN per ETH)</h3>
-          <div className="price-chart">
-            {prices.map((p, i) => (
-              <div key={i} className="price-col">
-                <motion.div
-                  className={`price-bar ${i <= step ? 'on' : ''}`}
-                  animate={{ height: i <= step ? `${p}%` : '20%' }}
-                />
-                <span className="mono dim">{i}</span>
+          <h3>Pool reserves (WETH / MEME)</h3>
+          <div className="pool-bars">
+            <div className="pool-bar-row">
+              <span className="mono dim">WETH</span>
+              <div className="pool-bar-track">
+                <motion.div className="pool-bar weth" animate={{ width: `${(s.poolWeth / 120) * 100}%` }} />
               </div>
-            ))}
+              <span className="mono">{s.poolWeth}</span>
+            </div>
+            <div className="pool-bar-row">
+              <span className="mono dim">MEME</span>
+              <div className="pool-bar-track">
+                <motion.div className="pool-bar meme" animate={{ width: `${(s.poolMeme / maxPool) * 100}%` }} />
+              </div>
+              <span className="mono">{(s.poolMeme / 1000).toFixed(0)}k</span>
+            </div>
           </div>
-          <p className="mono accent" style={{ marginTop: 12, fontSize: '1.2rem' }}>
-            Spot now · {prices[step]}
+          <p className="mono accent" style={{ marginTop: 10, fontSize: '1.1rem' }}>
+            Spot: ~{s.spot.toLocaleString()} MEME per 1 WETH
           </p>
+          {s.trade ? (
+            <div className={`sand-trade ${s.trade.tone}`}>
+              <strong>{s.trade.who}</strong>
+              <span>{s.trade.in} → {s.trade.out}</span>
+            </div>
+          ) : (
+            <div className="sand-trade pending">
+              <strong>No on-chain swap yet</strong>
+              <span>Intent only — visible in mempool</span>
+            </div>
+          )}
         </div>
         <div className="panel viz-panel">
-          <h3>Who acts</h3>
-          <div className="sand-list">
-            <div className={`sand-item ${step >= 0 ? 'on' : ''}`}>
-              <strong>Victim</strong>
-              <span>Broadcasts large swap. Visible in mempool.</span>
-            </div>
-            <div className={`sand-item bad ${step >= 1 ? 'on' : ''}`}>
-              <strong>Searcher front-run</strong>
-              <span>Buys first with higher fee. Moves price.</span>
-            </div>
-            <div className={`sand-item ${step >= 2 ? 'on' : ''}`}>
-              <strong>Victim fills</strong>
-              <span>Worse rate, still within slippage.</span>
-            </div>
-            <div className={`sand-item bad ${step >= 3 ? 'on' : ''}`}>
-              <strong>Searcher back-run</strong>
-              <span>Sells into victim. Extracts spread.</span>
-            </div>
+          <h3>Numbers at this step</h3>
+          <dl className="sand-kv">
+            {s.rows.map((r) => (
+              <div key={r.k} className="sand-kv-row">
+                <dt>{r.k}</dt>
+                <dd>{r.v}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="sand-balances">
+            <span>Searcher WETH: <strong>{s.searcherWeth}</strong></span>
+            {s.searcherProfit ? <span className="accent-pink">Profit: <strong>{s.searcherProfit}</strong></span> : null}
           </div>
         </div>
       </div>
-      <p className="callout">{captions[step]}</p>
+      <p className="callout">{s.foot}</p>
     </div>
   )
 }
@@ -787,15 +858,17 @@ export function GossipViz() {
       setLog(`2. Gossip: Node shares with peers (${i + 1}/${peers.length} mempools now see it)`)
     }
     setPhase('done')
-    setLog('3. Live and visible: searchers and block producers can read the pending intent.')
+    setLog('3. Live and visible: searchers can read from, to, value, calldata, and gas tip.')
   }
+
+  const showPending = phase === 'done' || phase === 'flood'
 
   return (
     <div className="viz viz-lg">
       <div className="viz-label">Interactive · How the mempool becomes public</div>
       <div className="controls">
         <button type="button" className="btn primary" onClick={broadcast}>
-          Broadcast a tx
+          Broadcast victim swap
         </button>
         <button
           type="button"
@@ -831,7 +904,79 @@ export function GossipViz() {
           </motion.div>
         ))}
       </div>
+      {showPending ? (
+        <div className="panel mempool-pending-panel">
+          <h3>What a searcher sees in the pending tx (public)</h3>
+          <pre className="code mempool-json">{`{
+  "from": "0x7099...dc79C8",       // victim
+  "to": "0xSimpleAMM...",          // swap contract
+  "input": "swap(10 WETH → MEME)", // calldata = intent
+  "gasPrice": "20000000000"        // tip bid
+}`}</pre>
+          <p className="mono dim tiny">Live demo: <code>cast rpc txpool_content --rpc-url http://127.0.0.1:8545</code></p>
+        </div>
+      ) : null}
       <p className="viz-status">{log}</p>
+    </div>
+  )
+}
+
+export function TxConfirmFlowViz() {
+  type Step = {
+    n: string
+    title: string
+    body: string
+    tone?: 'gold' | 'danger' | 'ok'
+    warn?: string
+  }
+
+  const steps: Step[] = [
+    {
+      n: '1',
+      title: 'Wallet signs',
+      body: 'You tap Send. Your wallet sends the signed tx to an RPC node.',
+    },
+    {
+      n: '2',
+      title: 'Local mempool',
+      body: 'The node stores it as pending. Wallet shows Confirm — not final yet.',
+      tone: 'gold',
+    },
+    {
+      n: '3',
+      title: 'Gossip (P2P)',
+      body: 'The node shares with peers. Within seconds, many mempools hold a copy. No central inbox.',
+    },
+    {
+      n: '4',
+      title: 'Builder picks txs',
+      body: 'Block builders sort by fee tip. Higher tip ≈ included first. A bot can outbid your swap.',
+      tone: 'danger',
+      warn: 'This is where MEV starts',
+    },
+    {
+      n: '5',
+      title: 'Confirmed',
+      body: 'Block lands. Every full node re-runs the EVM. Explorers show Confirmed.',
+      tone: 'ok',
+    },
+  ]
+
+  return (
+    <div className="tx-flow">
+      {steps.map((s, i) => (
+        <div key={s.n}>
+          <div className={`tx-flow-step ${s.tone ?? ''}`}>
+            <div className="tx-flow-num">{s.n}</div>
+            <div>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+              {s.warn ? <p className="tx-flow-warn">{s.warn}</p> : null}
+            </div>
+          </div>
+          {i < steps.length - 1 ? <div className="tx-flow-arrow">↓</div> : null}
+        </div>
+      ))}
     </div>
   )
 }
