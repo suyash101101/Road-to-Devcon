@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { slides } from './slides'
+import { getSessionFromLocation, getSessionLabel, getSlides } from './deck-data'
 
 export function Deck() {
+  const [session, setSession] = useState(() => getSessionFromLocation())
+  const slides = useMemo(() => getSlides(session), [session])
   const [index, setIndex] = useState(() => {
     const n = Number(window.location.hash.replace('#', ''))
     if (!Number.isNaN(n) && n >= 1 && n <= slides.length) return n - 1
@@ -14,6 +16,12 @@ export function Deck() {
     const next = Math.max(0, Math.min(slides.length - 1, i))
     setIndex(next)
     history.replaceState(null, '', `#${next + 1}`)
+  }, [])
+
+  useEffect(() => {
+    const syncSession = () => setSession(getSessionFromLocation())
+    window.addEventListener('popstate', syncSession)
+    return () => window.removeEventListener('popstate', syncSession)
   }, [])
 
   useEffect(() => {
@@ -82,7 +90,7 @@ export function Deck() {
           <span className="brand-gem" />
           Road to Devcon · NITK
         </div>
-        <div className="pill">Session 1 / 3</div>
+        <div className="pill">{getSessionLabel(session)}</div>
       </header>
 
       <main
