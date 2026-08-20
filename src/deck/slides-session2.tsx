@@ -239,7 +239,7 @@ const w = await wallet.create()              // 0zk address
 await shield({ token: 'USDC', amount: 1000n })
 await transfer({ to: '0zk1q...', amount: 500n })
 await unshield({ to: '0x...', amount: 250n })`}</Code>
-        <p className="callout">Session 2: read this file in the repo. Session 3: <code>npm run demo:dry</code> then <code>npm run demo</code>.</p>
+        <p className="callout">Read <code>examples/demo.ts</code> in the repo · run <code>npm run demo:dry</code> when we code live.</p>
       </>
     ),
   },
@@ -262,33 +262,34 @@ await unshield({ to: '0x...', amount: 250n })`}</Code>
   },
   {
     id: 's2-homework',
-    notes: 'Homework — clone kohaku-railgun now, pnpm install on WiFi.',
+    notes: 'Homework — four concrete steps. demo:dry is the check that setup worked.',
     content: (
       <>
-        <p className="eyebrow">Homework &amp; Session 3 preview</p>
-        <h2 className="title">Session 3: time to code</h2>
+        <p className="eyebrow">Homework</p>
+        <h2 className="title">Before the coding session</h2>
         <ol className="big-list">
           <li>
             <span className="n">01</span>
-            <span>Read the RAILGUN 5-minute overview — railgun.org/docs</span>
+            <span>Read railgun.org/docs — 5 minutes on how shielded pools work</span>
           </li>
           <li>
             <span className="n">02</span>
-            <span>Install Node 20+ from nodejs.org — check with <code>node --version</code></span>
+            <span>Install Node 20+ from nodejs.org · run <code>node --version</code></span>
           </li>
           <li>
             <span className="n">03</span>
             <span>
-              Clone github.com/vg239/kohaku-railgun · run <code>npm install</code> then <code>npm run setup</code>
+              Clone github.com/vg239/kohaku-railgun · <code>npm install</code> · <code>npm run setup</code>
             </span>
           </li>
           <li>
             <span className="n">04</span>
             <span>
-              Open <code>examples/demo.ts</code> · run <code>npm run demo:dry</code> (safe, no blockchain). Session 3: live demo.
+              Open <code>examples/demo.ts</code> · run <code>npm run demo:dry</code> · then <code>npm test</code>
             </span>
           </li>
         </ol>
+        <p className="callout">If <code>demo:dry</code> prints all four steps and exits — you are ready.</p>
       </>
     ),
   },
