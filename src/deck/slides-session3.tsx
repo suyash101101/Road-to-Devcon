@@ -331,6 +331,62 @@ export const session3Slides: Slide[] = [
     ),
   },
   {
+    id: 's3-live-demo',
+    notes: 'LIVE: only shield. Run demo:shield in terminal. Show 0zk printed, then approve tx, then shield tx on Sepolia Etherscan. Say transfer/unshield next slide.',
+    content: (
+      <>
+        <p className="eyebrow">Live demo · tonight</p>
+        <h2 className="title">What we run on Sepolia</h2>
+        <div className="grid-2">
+          <div className="panel ok">
+            <h3>Live on chain</h3>
+            <ol className="steps">
+              <li><code>wallet.create()</code> → print a <strong>0zk</strong> locker (no tx yet)</li>
+              <li><code>shield()</code> → approve USDC, then deposit into the vault</li>
+              <li>Open both txs on Sepolia Etherscan — deposit is public</li>
+            </ol>
+          </div>
+          <div className="panel">
+            <h3>Explain only (no broadcast)</h3>
+            <ol className="steps">
+              <li><code>transfer()</code> — private move inside the vault</li>
+              <li><code>unshield()</code> — payout to a public <strong>0x</strong></li>
+              <li>Use <strong>demo:dry</strong> — logs intent, skips on-chain send</li>
+            </ol>
+          </div>
+        </div>
+        <p className="callout">Honest scope: <strong>shield is the live proof</strong> that the vault works. Transfer and unshield are real — but need extra wiring (next slide).</p>
+      </>
+    ),
+  },
+  {
+    id: 's3-exercise-bundler',
+    notes: 'Key honesty slide. broadcast() needs ERC-4337 bundler + smart account. Workshop wrapper does not set setBundler() yet. Stretch exercise for advanced students.',
+    content: (
+      <>
+        <p className="eyebrow">Exercise · stretch goal</p>
+        <h2 className="title">Why transfer / unshield are not live yet</h2>
+        <p className="lead">
+          Inside the vault, <strong>transfer</strong> and <strong>unshield</strong> go through Kohaku&apos;s <code>broadcast()</code>.
+          That path expects an <strong>ERC-4337 bundler</strong> and a <strong>smart account</strong> — not configured in the workshop wrapper yet.
+        </p>
+        <div className="panel danger" style={{ marginTop: '1rem' }}>
+          <p>If you try live <code>transfer()</code> or <code>unshield()</code> today, you get:</p>
+          <p className="mono accent" style={{ marginTop: '0.5rem' }}>No bundler configured</p>
+        </div>
+        <p className="sub" style={{ marginTop: '1rem' }}><strong>Shield</strong> skips this — you sign a normal public tx from your <strong>0x</strong> wallet.</p>
+        <div className="rule" />
+        <p className="eyebrow">Optional homework</p>
+        <ol className="steps">
+          <li>Run <strong>demo:dry</strong> — see all four steps without broadcasting transfer/unshield</li>
+          <li>Read Kohaku docs on <strong>setBundler()</strong> + smart account setup</li>
+          <li>Wire bundler into the starter → first live private transfer on Sepolia</li>
+        </ol>
+        <p className="callout">Separate chunk of work — not required to understand the vault story tonight.</p>
+      </>
+    ),
+  },
+  {
     id: 's3-end',
     notes: 'Wrap with vault metaphor.',
     content: (
