@@ -331,6 +331,40 @@ export const session3Slides: Slide[] = [
     ),
   },
   {
+    id: 's3-setup',
+    notes: 'Only link slide — repo once, two faucets. Send students here for homework.',
+    content: (
+      <>
+        <p className="eyebrow">Try it</p>
+        <h2 className="title">Starter repo &amp; testnet tokens</h2>
+        <div className="grid-2">
+          <div className="panel ok">
+            <h3>Workshop repo</h3>
+            <p>
+              <a href="https://github.com/vg239/kohaku-railgun" target="_blank" rel="noreferrer">
+                github.com/vg239/kohaku-railgun
+              </a>
+            </p>
+            <p className="sub"><code>npm install</code> · <code>npm run demo:shield</code> · <code>npm run demo:dry</code></p>
+          </div>
+          <div className="panel">
+            <h3>Faucets (Sepolia)</h3>
+            <ul>
+              <li>
+                <a href="https://sepoliafaucet.com/" target="_blank" rel="noreferrer">sepoliafaucet.com</a>
+                {' '}— ETH for gas
+              </li>
+              <li>
+                <a href="https://faucet.circle.com/" target="_blank" rel="noreferrer">faucet.circle.com</a>
+                {' '}— test USDC
+              </li>
+            </ul>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
     id: 's3-live-demo',
     notes: 'LIVE: only shield. Run demo:shield in terminal. Show 0zk printed, then approve tx, then shield tx on Sepolia Etherscan. Say transfer/unshield next slide.',
     content: (
