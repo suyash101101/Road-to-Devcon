@@ -213,7 +213,7 @@ h2.title {
 
 .sub {
   margin-top: 0.9rem;
-  font-size: clamp(1.28rem, 2vw, 1.55rem);
+  font-size: clamp(1.35rem, 2.1vw, 1.65rem);
   color: var(--muted);
   line-height: 1.45;
   max-width: 48ch;
@@ -263,8 +263,8 @@ h2.title {
 .panel p,
 .panel li {
   color: var(--muted);
-  font-size: 1.35rem;
-  line-height: 1.4;
+  font-size: clamp(1.42rem, 2.1vw, 1.68rem);
+  line-height: 1.45;
 }
 
 .panel ul {
@@ -302,8 +302,8 @@ h2.title {
 }
 
 .steps li {
-  font-size: clamp(1.32rem, 2.1vw, 1.58rem);
-  line-height: 1.4;
+  font-size: clamp(1.42rem, 2.2vw, 1.72rem);
+  line-height: 1.45;
   padding: 0.85rem 1rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -335,8 +335,28 @@ h2.title {
   padding: 1rem 1.15rem;
   border: 1px solid var(--line);
   background: rgba(139, 108, 255, 0.12);
-  font-size: clamp(1.32rem, 2.1vw, 1.58rem);
-  line-height: 1.4;
+  font-size: clamp(1.42rem, 2.2vw, 1.72rem);
+  line-height: 1.45;
+}
+
+/* Bullet lists directly on a slide (outside .panel) */
+.slide-card > ul {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+  max-width: 52ch;
+}
+
+.slide-card > ul li {
+  font-size: clamp(1.42rem, 2.2vw, 1.72rem);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.slide-card > ul li::before {
+  content: "▸ ";
+  color: var(--cyan);
 }
 
 .code {
@@ -552,8 +572,8 @@ h2.title {
 
 .repo-card p {
   color: var(--muted);
-  font-size: 1.15rem;
-  line-height: 1.4;
+  font-size: clamp(1.25rem, 1.9vw, 1.45rem);
+  line-height: 1.45;
   margin-bottom: 0.5rem;
 }
 
