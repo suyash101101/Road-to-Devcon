@@ -1,4 +1,5 @@
 import type { Slide } from './slides-session1'
+import { SandwichViz } from '../viz/Widgets'
 
 function Code({ children }: { children: string }) {
   return <pre className="code">{children}</pre>
@@ -7,22 +8,28 @@ function Code({ children }: { children: string }) {
 export const session3Slides: Slide[] = [
   {
     id: 's3-title',
-    notes: 'Session 3 — live RAILGUN demo. No prior session references needed in speech.',
+    notes: 'Session 3 opener. Sandwich harm first, then RAILGUN fix, then live demo.',
     content: (
       <>
         <p className="eyebrow">Session 3 · RAILGUN Live Demo</p>
         <h1 className="display">Private Payments on Ethereum</h1>
-        <p className="lead">Shield · Transfer · Unshield — same chain, hidden intent inside the pool</p>
-        <p className="sub">Repo: github.com/vg239/kohaku-railgun · Sepolia testnet</p>
+        <p className="lead">From sandwich harm → shielded pool → live Sepolia demo</p>
+        <p className="sub">
+          Deck:{' '}
+          <a href="https://road-to-devcon.vercel.app/?session=3" target="_blank" rel="noreferrer">
+            road-to-devcon.vercel.app/?session=3
+          </a>
+          {' · '}Repo: github.com/vg239/kohaku-railgun
+        </p>
       </>
     ),
   },
   {
     id: 's3-problem',
-    notes: 'Sandwich harm = intent visible in mempool before execution.',
+    notes: 'Bridge from Session 1 sandwich lab. Intent visible while pending.',
     content: (
       <>
-        <p className="eyebrow">The problem</p>
+        <p className="eyebrow">Recap · why privacy</p>
         <h2 className="title">Public mempool = public intent</h2>
         <div className="grid-2">
           <div className="panel danger">
@@ -32,14 +39,92 @@ export const session3Slides: Slide[] = [
               <li>Bot reads: pair, amount, slippage, address</li>
               <li>Front-run → victim fills worse → back-run profit</li>
             </ol>
-            <p className="sub">Harm: out-traded because intent was visible while pending.</p>
+            <p className="sub">Harm: out-traded because intent was visible while pending — not hacked.</p>
           </div>
           <div className="panel ok">
-            <h3>Today&apos;s question</h3>
-            <p>Can the network <strong>verify</strong> a transaction is valid without reading <strong>who sent what to whom</strong>?</p>
-            <p className="callout" style={{ marginTop: '0.75rem' }}>Answer: ZK proof + RAILGUN shielded pool on the same Ethereum chain.</p>
+            <h3>Today&apos;s fix</h3>
+            <p>Can the network <strong>verify</strong> a transaction without reading <strong>who sent what to whom</strong>?</p>
+            <p className="callout" style={{ marginTop: '0.75rem' }}>
+              RAILGUN shielded pool on the <strong>same</strong> Ethereum chain — ZK proofs hide intent inside the pool.
+            </p>
           </div>
         </div>
+      </>
+    ),
+  },
+  {
+    id: 's3-sandwich-viz',
+    notes: 'Click 0→3 slowly. Numbers match sandwich-attack lab output exactly.',
+    content: (
+      <>
+        <p className="eyebrow">Sandwich attack · step by step</p>
+        <h2 className="title">Pool: 100 WETH / 1M MEME · victim swaps 10 WETH</h2>
+        <SandwichViz />
+      </>
+    ),
+  },
+  {
+    id: 's3-sandwich-flow',
+    notes: 'Static recap if you want no clicking. Same numbers as the widget.',
+    content: (
+      <>
+        <p className="eyebrow">Sandwich · the four beats</p>
+        <h2 className="title">What happens in the AMM (lab-verified)</h2>
+        <ol className="steps">
+          <li><strong>Intent</strong> — Victim pending: 10 WETH → MEME. Fair = 90,909 MEME. Min = 81,818 (10% slippage). <em>Public in mempool.</em></li>
+          <li><strong>Front-run</strong> — Searcher spends 5 WETH, buys 47,619 MEME. Price drops to ~9,070 MEME/WETH.</li>
+          <li><strong>Victim</strong> — Still swaps 10 WETH but only gets 82,815 MEME. Lost 8,093 vs fair. Tx succeeds.</li>
+          <li><strong>Back-run</strong> — Searcher sells 47,619 MEME back. Net profit ≈ <strong>0.97 WETH</strong> (970654627539503386 wei).</li>
+        </ol>
+        <p className="callout">The victim is the filling. The bot is the bread on both sides.</p>
+      </>
+    ),
+  },
+  {
+    id: 's3-sandwich-why',
+    notes: 'Slippage is the budget. Three ingredients.',
+    content: (
+      <>
+        <p className="eyebrow">Why sandwiches work</p>
+        <h2 className="title">Three ingredients</h2>
+        <ol className="steps">
+          <li><strong>Public mempool</strong> — bot sees your pending swap (amount, pair, slippage).</li>
+          <li><strong>AMM math</strong> — bot&apos;s trade moves the price (x × y = k).</li>
+          <li><strong>Slippage tolerance</strong> — victim accepts up to X% worse; that X is the bot&apos;s budget.</li>
+        </ol>
+        <p className="callout">Victim tx still succeeds — they just get fewer tokens. That is why it is insidious.</p>
+      </>
+    ),
+  },
+  {
+    id: 's3-sandwich-lab',
+    notes: 'Run sandwich-attack locally. Pause on Victim lost MEME 8093 line.',
+    content: (
+      <>
+        <p className="eyebrow">Sandwich lab · reproduce it</p>
+        <h2 className="title">sandwich-attack repo</h2>
+        <Code>{`git clone https://github.com/suyash101101/sandwich-attack.git
+cd sandwich-attack
+forge install foundry-rs/forge-std
+forge test -vv
+
+# Terminal A
+anvil --port 8545
+
+# Terminal B
+forge script script/Sandwich.s.sol:SandwichScript \\
+  --broadcast --rpc-url http://127.0.0.1:8545 -vv`}</Code>
+        <p className="sub" style={{ marginTop: '0.75rem' }}>Expected output:</p>
+        <Code>{`=== VICTIM INTENT (PUBLIC in mempool) ===
+Swap 10 WETH -> MEME, minOut 81818
+
+=== VICTIM EXECUTES ===
+Victim got MEME       82815
+Fair would have been  90909
+Victim lost MEME      8093
+
+=== BACK-RUN ===
+Searcher profit (wei)  970654627539503386  (~0.97 WETH)`}</Code>
       </>
     ),
   },
@@ -50,40 +135,45 @@ export const session3Slides: Slide[] = [
       <>
         <p className="eyebrow">Architecture</p>
         <h2 className="title">One Ethereum — not a separate world</h2>
-        <Code>{`Same Sepolia Ethereum
-├── Your 0x wallet          (public — Etherscan)
-├── Public mempool            (bots read swap intent here)
-└── RAILGUN smart contracts   (shielded pool inside the chain)
+        <Code>{`Same Sepolia Ethereum (one chain, one mempool, one block space)
+├── Your 0x wallet              (public — Etherscan)
+├── Public mempool                (bots read swap intent here)
+└── RAILGUN smart contracts       (shielded pool INSIDE the chain)
          └── encrypted notes + Merkle tree + ZK verifier`}</Code>
         <p className="callout">Private ≠ off-chain. Every node runs the same verifier and updates the same contract storage.</p>
       </>
     ),
   },
   {
-    id: 's3-two-layers',
-    notes: 'Two address types: 0x public, 0zk private inside pool.',
+    id: 's3-0x-0zk',
+    notes: 'Two identities on same chain. 0x pays gas for shield. 0zk holds notes.',
     content: (
       <>
-        <p className="eyebrow">Two layers</p>
-        <h2 className="title">Public vs private on the same chain</h2>
+        <p className="eyebrow">Two address types</p>
+        <h2 className="title">0x vs 0zk — what each one is</h2>
         <div className="grid-2">
           <div className="panel">
-            <h3>Public layer · 0x...</h3>
+            <h3>0x… (public Ethereum address)</h3>
             <ul>
-              <li>Normal ETH + ERC-20 balances</li>
-              <li>Visible on Etherscan</li>
-              <li>Tx intent readable in mempool</li>
+              <li>Normal wallet — MetaMask, hardware wallet, test key in <code>.env</code></li>
+              <li>Holds public ETH + ERC-20 (USDC on Sepolia)</li>
+              <li>Every tx visible on Etherscan + readable in mempool</li>
+              <li><strong>Shield</strong> is signed from here (you pay gas)</li>
             </ul>
+            <p className="mono dim" style={{ marginTop: '0.5rem' }}>Example: 0xc22c…460BD</p>
           </div>
           <div className="panel ok">
-            <h3>Private layer · 0zk...</h3>
+            <h3>0zk… (RAILGUN private address)</h3>
             <ul>
-              <li>Identity inside RAILGUN pool</li>
-              <li>Balance = encrypted notes</li>
-              <li>Moves proven with ZK — not readable as plain transfers</li>
+              <li>Created by <code>wallet.create()</code> — not imported from MetaMask</li>
+              <li>Derived from a random mnemonic stored locally by Kohaku SDK</li>
+              <li>Balance = encrypted <strong>notes</strong> inside the pool, not a public ERC-20 mapping</li>
+              <li><strong>Transfer</strong> is 0zk → 0zk only (private)</li>
             </ul>
+            <p className="mono dim" style={{ marginTop: '0.5rem' }}>Example: 0zk1qyj9wpk7vgdrg…fua5dp</p>
           </div>
         </div>
+        <p className="callout"><strong>Not the same thing:</strong> your 0x address is public. Your 0zk address is your identity inside the shielded pool. You need both for the full flow.</p>
       </>
     ),
   },
@@ -94,21 +184,21 @@ export const session3Slides: Slide[] = [
       <>
         <p className="eyebrow">Three operations</p>
         <h2 className="title">Shield → Transfer → Unshield</h2>
-        <Code>{`shield     0xYou  ──▶  pool     (PUBLIC deposit — visible)
-transfer   0zkYou ──▶  0zkBob   (PRIVATE — proof only)
-unshield   0zkYou ──▶  0xAnyone (PUBLIC exit — link blurred)`}</Code>
+        <Code>{`shield     0xYou  ──▶  pool       (PUBLIC deposit — visible on Etherscan)
+transfer   0zkYou ──▶  0zkBob     (PRIVATE — mempool sees proof bytes only)
+unshield   0zkYou ──▶  0xAnyone   (PUBLIC exit — amount/recipient visible)`}</Code>
         <div className="repo-grid" style={{ marginTop: '1rem' }}>
           <div className="repo-card">
             <div className="tag">shield</div>
-            <p>Public USDC into RAILGUN contract. You get an encrypted note at your 0zk address.</p>
+            <p>Public USDC → RAILGUN contract. Auto-approves ERC-20 if needed. Creates encrypted note at your 0zk.</p>
           </div>
           <div className="repo-card">
             <div className="tag">transfer</div>
-            <p>0zk → 0zk only. Chain verifies proof. Sender, recipient, amount hidden.</p>
+            <p>0zk → 0zk. ZK proof on laptop. Broadcaster submits. Sender/recipient/amount hidden.</p>
           </div>
           <div className="repo-card">
             <div className="tag">unshield</div>
-            <p>Prove note ownership. USDC sent to any 0x. Exit visible; deposit link hard to trace.</p>
+            <p>Prove note ownership. USDC sent to any 0x. Exit visible; shield link blurred by anonymity set.</p>
           </div>
         </div>
       </>
@@ -127,7 +217,7 @@ unshield   0zkYou ──▶  0xAnyone (PUBLIC exit — link blurred)`}</Code>
           <li><code>shield(10 USDC)</code> → approve USDC (if needed) + Sepolia tx from <code>0xAlice</code></li>
           <li>Contract takes USDC, writes encrypted <strong>note</strong> (commitment) in Merkle tree</li>
         </ol>
-        <p className="callout"><strong>Visible:</strong> Alice deposited into RAILGUN. <strong>Hidden:</strong> exact note secrets — outsiders see a hash leaf, not &quot;Alice 10 USDC&quot;.</p>
+        <p className="callout"><strong>Visible:</strong> Alice deposited into RAILGUN. <strong>Hidden:</strong> note secrets — outsiders see a hash leaf, not &quot;Alice 10 USDC&quot;.</p>
       </>
     ),
   },
@@ -257,6 +347,68 @@ await unshield({ to: '0x...', amount: 250n })`}</Code>
     ),
   },
   {
+    id: 's3-faq-concepts',
+    notes: 'Speaker prep — read before class. Press N for notes on any slide.',
+    content: (
+      <>
+        <p className="eyebrow">FAQ · concepts (speaker prep)</p>
+        <h2 className="title">Questions students ask</h2>
+        <div className="grid-2">
+          <div className="panel">
+            <h3>Architecture</h3>
+            <ul>
+              <li><strong>Separate chain?</strong> No — RAILGUN is contracts on Sepolia, same nodes/blocks.</li>
+              <li><strong>Separate mempool?</strong> No — shield uses public mempool; transfer intent is hidden inside proof.</li>
+              <li><strong>Buy shielded USDC?</strong> No — shield public USDC into the pool to create notes.</li>
+              <li><strong>Is shield private?</strong> No — deposit tx is public. Privacy starts after shield.</li>
+              <li><strong>Is unshield private?</strong> Exit amount + recipient 0x are public; link to your shield is blurred.</li>
+            </ul>
+          </div>
+          <div className="panel ok">
+            <h3>0x vs 0zk</h3>
+            <ul>
+              <li><strong>0x</strong> = normal wallet. Holds ETH/USDC. Signs shield tx. Visible everywhere.</li>
+              <li><strong>0zk</strong> = Railgun identity from <code>wallet.create()</code>. Holds notes, not public ERC-20.</li>
+              <li><strong>Can I send 0x → 0zk directly?</strong> No — must shield first, then transfer inside pool.</li>
+              <li><strong>Same person?</strong> Yes — one human, two identities on the same chain.</li>
+              <li><strong>New 0zk every run?</strong> Yes in starter — random mnemonic each <code>wallet.create()</code> unless you persist storage.</li>
+            </ul>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 's3-faq-ops',
+    notes: 'Operational FAQ — faucets, keys, live demo limits.',
+    content: (
+      <>
+        <p className="eyebrow">FAQ · setup &amp; live demo</p>
+        <h2 className="title">Before you run it</h2>
+        <div className="grid-2">
+          <div className="panel danger">
+            <h3>Common mistakes</h3>
+            <ul>
+              <li><strong>PRIVATE_KEY in .env</strong> = secret key (0x + 64 hex). <em>Not</em> your public 0x address.</li>
+              <li><strong>Need both</strong> Sepolia ETH (gas) + Sepolia USDC (shield amount).</li>
+              <li><strong>Allowance error?</strong> Repo auto-approves USDC before shield — pull latest main.</li>
+              <li><strong>transfer/unshield live fails?</strong> Starter has no bundler — use <code>npm run demo:dry</code> to explain.</li>
+            </ul>
+          </div>
+          <div className="panel ok">
+            <h3>Security &amp; trust</h3>
+            <ul>
+              <li><strong>Can broadcaster steal?</strong> No — bad proof rejected by verifier on every node.</li>
+              <li><strong>Who pays gas for transfer?</strong> Broadcaster — so your 0x is not linked to the private send.</li>
+              <li><strong>What is a note?</strong> Encrypted bearer claim — like a sealed envelope in the Merkle tree.</li>
+              <li><strong>Anonymity set?</strong> More shields in the pool → harder to link your shield to your unshield.</li>
+            </ul>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
     id: 's3-faucets',
     notes: 'Students need Sepolia ETH + Sepolia USDC. PRIVATE_KEY is secret hex NOT your 0x address.',
     content: (
@@ -280,7 +432,7 @@ await unshield({ to: '0x...', amount: 250n })`}</Code>
             <p className="sub">Token: <code>0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238</code></p>
           </div>
         </div>
-        <p className="callout"><strong>.env PRIVATE_KEY</strong> = secret key (0x + 64 hex chars). <strong>Not</strong> your public 0x address. MetaMask → Account details → Show private key.</p>
+        <p className="callout"><strong>.env PRIVATE_KEY</strong> = secret key (0x + 64 hex chars). MetaMask → Account details → Show private key.</p>
       </>
     ),
   },
@@ -328,26 +480,26 @@ npm test`}</Code>
   },
   {
     id: 's3-sandwich-compare',
-    notes: 'Close the loop with sandwich lab.',
+    notes: 'Close the loop: sandwich harm vs RAILGUN transfer.',
     content: (
       <>
         <p className="eyebrow">Compare</p>
         <h2 className="title">Sandwich lab vs RAILGUN transfer</h2>
         <div className="grid-2">
           <div className="panel danger">
-            <h3>Sandwich victim</h3>
+            <h3>Sandwich victim (Session 1 lab)</h3>
             <ul>
               <li>Intent: swap 10 WETH → MEME</li>
-              <li>Visible in mempool</li>
-              <li>Bot profits ~0.97 WETH (your lab)</li>
+              <li>Visible in mempool while pending</li>
+              <li>Bot profits ~0.97 WETH — victim loses 8,093 MEME</li>
             </ul>
           </div>
           <div className="panel ok">
             <h3>RAILGUN transfer</h3>
             <ul>
               <li>Intent: send USDC to 0zkBob</li>
-              <li>Not readable in mempool</li>
-              <li>Verifier checks math — bots blind</li>
+              <li>Mempool sees proof bytes — not readable swap intent</li>
+              <li>Verifier checks math — sandwich bots blind</li>
             </ul>
           </div>
         </div>
@@ -356,14 +508,19 @@ npm test`}</Code>
   },
   {
     id: 's3-end',
-    notes: 'Wrap. Point to repo and Etherscan shield tx if live demo ran.',
+    notes: 'Wrap. Point to repo, Etherscan shield tx, and deck URL.',
     content: (
       <>
         <p className="eyebrow">Wrap</p>
         <h1 className="display">Same chain. Hidden intent inside the pool.</h1>
-        <p className="lead">Shield deposits publicly. Transfer privately. Unshield exits publicly. ZK proofs keep the middle honest and unreadable.</p>
+        <p className="lead">Sandwich harm showed public intent. Shield deposits publicly. Transfer privately. Unshield exits publicly. ZK proofs keep the middle honest and unreadable.</p>
         <div className="rule" />
-        <p className="sub">github.com/vg239/kohaku-railgun · npm run demo:shield · npm run demo:dry</p>
+        <p className="sub">
+          github.com/vg239/kohaku-railgun ·{' '}
+          <a href="https://road-to-devcon.vercel.app/?session=3" target="_blank" rel="noreferrer">
+            road-to-devcon.vercel.app/?session=3
+          </a>
+        </p>
       </>
     ),
   },

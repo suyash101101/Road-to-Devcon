@@ -2,9 +2,9 @@
 
 React slide deck and workshop links.
 
-**Deck:** https://devcon-site.vercel.app  
-**Session 2 deck:** https://devcon-site.vercel.app/?session=2  
-**Session 3 deck:** https://devcon-site.vercel.app/?session=3
+**Deck:** https://road-to-devcon.vercel.app  
+**Session 2 deck:** https://road-to-devcon.vercel.app/?session=2  
+**Session 3 deck:** https://road-to-devcon.vercel.app/?session=3
 
 | Repo | URL |
 |------|-----|

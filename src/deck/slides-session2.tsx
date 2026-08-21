@@ -302,7 +302,7 @@ await unshield({ to: '0x...', amount: 250n })`}</Code>
         <h1 className="display">You now know how privacy works on-chain</h1>
         <p className="lead">The network doesn&apos;t need to read your transaction to verify it. A proof is enough.</p>
         <div className="rule" />
-        <p className="sub">Starter repo: github.com/vg239/kohaku-railgun · Deck: devcon-site.vercel.app</p>
+        <p className="sub">Starter repo: github.com/vg239/kohaku-railgun · Deck: road-to-devcon.vercel.app</p>
       </>
     ),
   },
